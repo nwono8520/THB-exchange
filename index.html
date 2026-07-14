@@ -18,46 +18,44 @@
     --good-bg:#e6f4ee;
     --bad:#b3453b;
     --bad-bg:#fbeae8;
+    --orange:#e07b1f;
+    --orange-bg:#fdf1e4;
+    --green-label:#2f8a5b;
     --ink:#1e2430;
     --ink-soft:#6b7280;
     --line:#e7e1d3;
     --radius:14px;
   }
   *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
   body{
     margin:0;
     min-height:100vh;
     background:
-      radial-gradient(circle at 12% 8%, rgba(199,154,58,0.10), transparent 40%),
-      radial-gradient(circle at 90% 85%, rgba(18,35,58,0.08), transparent 45%),
+      radial-gradient(circle at 12% 8%, rgba(199,154,58,0.12), transparent 40%),
+      radial-gradient(circle at 88% 90%, rgba(18,35,58,0.10), transparent 45%),
       var(--cream);
     font-family:'Noto Sans TC', sans-serif;
     color:var(--ink);
     display:flex;
-    justify-content:flex-end;
+    justify-content:center;
     align-items:flex-start;
+    padding:36px 20px;
   }
-  .backdrop-note{
-    position:fixed;
-    left:40px;
-    top:40px;
-    max-width:360px;
-    color:var(--ink-soft);
-    font-size:13px;
-    line-height:1.9;
-    display:none;
-  }
-  @media (min-width:1100px){ .backdrop-note{ display:block; } }
-  .backdrop-note b{ color:var(--navy); font-family:'Fraunces', serif; font-size:22px; display:block; margin-bottom:10px; font-weight:700;}
 
   .panel{
     width:100%;
-    max-width:430px;
-    min-height:100vh;
+    max-width:440px;
     background:var(--card);
-    box-shadow:-8px 0 30px rgba(18,35,58,0.08);
-    padding:28px 24px 60px;
+    border-radius:22px;
+    box-shadow:0 24px 60px rgba(18,35,58,0.14), 0 2px 8px rgba(18,35,58,0.06);
+    padding:28px 24px 40px;
     position:relative;
+  }
+
+  @media (max-width:520px){
+    body{ padding:0; }
+    .panel{ border-radius:0; box-shadow:none; max-width:100%; min-height:100vh; padding:24px 18px 48px; }
   }
   .brand{
     display:flex;
@@ -150,6 +148,26 @@
   }
   .status.ok{ color:var(--good); }
   .status.err{ color:var(--bad); }
+  .status.warn{ color:var(--orange); }
+
+  .source-badges{ display:flex; gap:6px; margin:-4px 0 10px; flex-wrap:wrap; }
+  .source-badge{
+    font-size:10.5px;
+    font-weight:700;
+    padding:3px 9px 3px 7px;
+    border-radius:20px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .source-badge .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .source-badge.green{ background:var(--good-bg); color:var(--green-label); }
+  .source-badge.green .dot{ background:var(--green-label); }
+  .source-badge.orange{ background:var(--orange-bg); color:var(--orange); }
+  .source-badge.orange .dot{ background:var(--orange); }
+
+  .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
+  .refresh-btn.orange:hover{ background:var(--orange-bg); }
 
   .refresh-btn{
     border:1px solid var(--line);
@@ -241,36 +259,79 @@
 
   .summary{
     margin-top:22px;
-    border-radius:var(--radius);
-    padding:18px;
-    background:linear-gradient(135deg, var(--gold-deep), var(--gold));
+    border-radius:18px;
+    padding:20px 18px 18px;
+    background:linear-gradient(160deg, var(--gold-deep), var(--gold) 75%);
     color:#2a1e05;
   }
   .summary .headline{
     font-family:'Fraunces', serif;
-    font-size:19px;
+    font-size:18px;
     font-weight:700;
-    margin-bottom:8px;
+    margin-bottom:4px;
   }
+  .summary .subline{
+    font-size:12px;
+    opacity:0.75;
+    margin-bottom:16px;
+  }
+  .summary-compare{
+    display:flex;
+    align-items:stretch;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .compare-item{
+    flex:1;
+    background:rgba(255,255,255,0.4);
+    border-radius:12px;
+    padding:12px 10px;
+    text-align:center;
+    min-width:0;
+  }
+  .compare-item.is-best{ background:rgba(255,255,255,0.65); box-shadow:inset 0 0 0 1.5px rgba(31,122,92,0.45); }
+  .compare-item.is-worst{ background:rgba(255,255,255,0.25); box-shadow:inset 0 0 0 1.5px rgba(179,69,59,0.3); }
+  .compare-item .clabel{
+    font-size:10.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    opacity:0.7;
+    margin-bottom:6px;
+  }
+  .compare-item.is-best .clabel{ color:var(--good); opacity:1; }
+  .compare-item.is-worst .clabel{ color:var(--bad); opacity:1; }
+  .compare-item .cpath{ font-size:11px; opacity:0.75; margin-bottom:6px; line-height:1.4; min-height:28px; }
+  .compare-item .cvalue{
+    font-family:'Fraunces', serif;
+    font-weight:800;
+    font-size:19px;
+    line-height:1.2;
+  }
+  .compare-item .cvalue span{ font-size:11px; font-weight:600; opacity:0.7; margin-left:2px; }
+  .summary-vs{
+    align-self:center;
+    font-size:11px;
+    font-weight:700;
+    opacity:0.55;
+    padding:0 2px;
+  }
+  .summary-diff{
+    background:rgba(255,255,255,0.42);
+    border-radius:12px;
+    padding:12px 14px;
+    text-align:center;
+  }
+  .summary-diff .dlabel{ font-size:11px; font-weight:700; opacity:0.7; margin-bottom:3px; letter-spacing:0.3px;}
+  .summary-diff .dvalue{
+    font-family:'Fraunces', serif;
+    font-weight:800;
+    font-size:27px;
+    line-height:1.15;
+  }
+  .summary-diff .dvalue .pct{ font-size:13px; font-weight:700; opacity:0.7; margin-left:6px; }
   .summary .detail{ font-size:13px; line-height:1.9; }
   .summary .diff{ font-weight:800; }
-  .summary .amt{
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:19px;
-    letter-spacing:0.2px;
-  }
-  .summary .diff-line{
-    display:block;
-    margin-top:10px;
-    padding-top:10px;
-    border-top:1px dashed rgba(42,30,5,0.35);
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:24px;
-    line-height:1.3;
-  }
-  .summary .diff-line .pct{ font-size:14px; font-weight:600; opacity:0.75; }
 
   .note{
     font-size:11px;
@@ -290,11 +351,6 @@
 </style>
 </head>
 <body>
-
-<div class="backdrop-note">
-  <b>台幣 ⇄ 泰銖<br>即時換匯比較</b>
-  這個小工具會即時抓取台灣銀行牌告匯率，並讓你比對「在台灣換」跟「去泰國用美金轉換」哪條路徑最划算。右側面板可以固定放著隨時查詢。
-</div>
 
 <div class="panel">
   <div class="brand"><div class="flag"></div><h1>台幣 ⇄ 泰銖 匯率比較</h1></div>
@@ -352,15 +408,19 @@
   <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
 
   <div class="section-title">
-    <span>② 泰國 Super Rich（buying rate）</span>
+    <span>② 泰國 Super Rich（buying rate・雙來源比對）</span>
     <span id="srStatus" class="status">請確認/手動輸入</span>
+  </div>
+  <div class="source-badges">
+    <span class="source-badge green"><span class="dot"></span>Super Rich Thailand（綠標）</span>
+    <span class="source-badge orange"><span class="dot"></span>Super Rich 1965（橘標）</span>
   </div>
 
   <div class="rate-card">
     <div class="row">
       <div>
         <div class="name">3. 台幣 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">泰國當地用台幣現鈔換泰銖 · 多數分店不收台幣或匯率很差，請務必到店現場確認</div>
+        <div class="desc">泰國當地用台幣現鈔換泰銖・自動抓取時會比對綠標與橘標兩家結果 · 多數分店不收台幣或匯率很差，請務必到店現場確認</div>
       </div>
       <div class="rate-edit">
         <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="0.90">
@@ -373,7 +433,7 @@
     <div class="row">
       <div>
         <div class="name">4. 美金 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">在泰國用美金現鈔換泰銖</div>
+        <div class="desc">在泰國用美金現鈔換泰銖・同樣會比對兩家來源</div>
       </div>
       <div class="rate-edit">
         <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
@@ -382,9 +442,10 @@
     </div>
   </div>
 
-  <div style="text-align:right; margin:-2px 0 14px; display:flex; gap:8px; justify-content:flex-end;">
-    <button class="refresh-btn" id="refreshSr">↻ 嘗試自動抓取</button>
-    <button class="refresh-btn" id="openSr">↗ 開啟 Super Rich 官網</button>
+  <div style="text-align:right; margin:-2px 0 14px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+    <button class="refresh-btn" id="refreshSr">↻ 重新比對兩家匯率</button>
+    <button class="refresh-btn" id="openSrGreen">↗ Super Rich Thailand</button>
+    <button class="refresh-btn orange" id="openSrOrange">↗ Super Rich 1965</button>
   </div>
 
   <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
@@ -409,7 +470,12 @@
 
   <div class="summary">
     <div class="headline" id="summaryHeadline">最佳與最差路徑比較</div>
-    <div class="detail" id="summaryDetail">輸入金額後即會自動計算</div>
+    <div class="subline" id="summarySubline">輸入金額後即會自動計算</div>
+    <div class="summary-compare" id="summaryCompare"></div>
+    <div class="summary-diff" id="summaryDiffBox" style="display:none;">
+      <div class="dlabel">整體差距</div>
+      <div class="dvalue" id="summaryDiffValue">--</div>
+    </div>
   </div>
 
   <div class="section-title" style="margin-top:26px;">④ 這些差額能喝幾杯 LadyDrink？</div>
@@ -427,7 +493,9 @@
     </div>
     <div class="quick-amounts" style="margin-top:10px;">
       <button data-lp="180">180</button>
+      <button data-lp="190">190</button>
       <button data-lp="200">200</button>
+      <button data-lp="220">220</button>
       <button data-lp="250">250</button>
     </div>
   </div>
@@ -438,7 +506,7 @@
   </div>
 
   <div class="note">
-    説明：①②會嘗試即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金匯率）。③④來自 <span class="link-out" id="srNoteLink">Super Rich Thailand</span>，因該網站匯率為前端動態載入、且台幣非其常態掛牌幣別，無法保證自動抓取成功，建議出發前以官網或門市現場公告為準，並手動更新上方數字。所有結果僅供參考，實際交易以銀行/兌換點當下匯率及手續費為準。
+    説明：①②會嘗試即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金匯率）。③④會同時嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand（綠標）</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965（橘標）</span> 兩家匯率取中位數，因兩者網站皆為前端動態載入、且台幣非常態掛牌幣別，無法保證每次都成功，建議出發前以官網或門市現場公告為準，並手動核對上方數字。所有結果僅供參考，實際交易以銀行/兌換點當下匯率及手續費為準。
   </div>
 </div>
 
@@ -494,20 +562,35 @@ function calc(){
 
       const diff = best.val - worst.val;
       const pct = (diff / worst.val) * 100;
-      $('summaryHeadline').textContent = `${best.name} 勝出`;
-      $('summaryDetail').innerHTML =
-        `換 NT$${fmt(twd,0)} 時，最佳（${best.name}）可換到 <span class="amt">${fmt(best.val)} THB</span>，` +
-        `最差（${worst.name}）只有 <span class="amt">${fmt(worst.val)} THB</span>。` +
-        `<span class="diff-line">差距達 ${fmt(diff)} THB <span class="pct">（約 ${fmt(pct,1)}%）</span></span>`;
+      $('summaryHeadline').textContent = `🏆 ${best.name} 勝出`;
+      $('summarySubline').textContent = `換 NT$${fmt(twd,0)} 時的比較結果`;
+      $('summaryCompare').innerHTML = `
+        <div class="compare-item is-best">
+          <div class="clabel">✓ 最划算</div>
+          <div class="cpath">${best.name}</div>
+          <div class="cvalue">${fmt(best.val)}<span>THB</span></div>
+        </div>
+        <div class="summary-vs">vs</div>
+        <div class="compare-item is-worst">
+          <div class="clabel">✕ 最不划算</div>
+          <div class="cpath">${worst.name}</div>
+          <div class="cvalue">${fmt(worst.val)}<span>THB</span></div>
+        </div>`;
+      $('summaryDiffBox').style.display = 'block';
+      $('summaryDiffValue').innerHTML = `${fmt(diff)} THB <span class="pct">（約 ${fmt(pct,1)}%）</span>`;
       updateLadyDrink(diff);
     } else {
       $('summaryHeadline').textContent = '各路徑差異不大';
-      $('summaryDetail').textContent = '目前輸入的匯率下，各路徑結果非常接近。';
+      $('summarySubline').textContent = '目前輸入的匯率下，各路徑結果非常接近。';
+      $('summaryCompare').innerHTML = '';
+      $('summaryDiffBox').style.display = 'none';
       updateLadyDrink(0);
     }
   } else {
     $('summaryHeadline').textContent = '請輸入完整匯率';
-    $('summaryDetail').textContent = '至少需要兩條有效路徑才能比較。';
+    $('summarySubline').textContent = '至少需要兩條有效路徑才能比較。';
+    $('summaryCompare').innerHTML = '';
+    $('summaryDiffBox').style.display = 'none';
     updateLadyDrink(NaN);
   }
 }
@@ -530,7 +613,7 @@ function updateLadyDrink(diffThb){
     `多了 <span class="diff" style="font-size:20px;">${fmt(drinksRounded,1)} 杯</span> LadyDrink 可以請！`;
 }
 
-document.querySelectorAll('.quick-amounts button').forEach(btn=>{
+document.querySelectorAll('.amount-box .quick-amounts button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     $('twdAmount').value = btn.dataset.v;
     calc();
@@ -548,11 +631,17 @@ document.querySelectorAll('[data-lp]').forEach(btn=>{
   });
 });
 
-$('openSr').addEventListener('click', ()=>{
+$('openSrGreen').addEventListener('click', ()=>{
   window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
 });
-$('srNoteLink').addEventListener('click', ()=>{
+$('openSrOrange').addEventListener('click', ()=>{
+  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
+});
+$('srNoteLinkGreen').addEventListener('click', ()=>{
   window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
+});
+$('srNoteLinkOrange').addEventListener('click', ()=>{
+  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
 });
 
 // ---- Bank of Taiwan live fetch ----
@@ -615,40 +704,72 @@ async function refreshBotRates(){
   }
 }
 
-// ---- Super Rich best-effort live fetch (JS-rendered site, may not always succeed) ----
+// ---- Super Rich best-effort live fetch, cross-checked across 2 brands ----
+function extractNumbersNear(text, keyword, min, max, maxCount=8){
+  const results = [];
+  const re = new RegExp(keyword + '[^0-9]{0,60}?(\\d{1,3}\\.\\d{1,4})', 'gi');
+  let m;
+  while((m = re.exec(text)) !== null && results.length < maxCount){
+    const v = parseFloat(m[1]);
+    if(isFinite(v) && v > min && v < max) results.push(v);
+  }
+  return results;
+}
+
+function median(arr){
+  if(!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+}
+
 async function refreshSrRates(){
   const btn = $('refreshSr');
   const statusEl = $('srStatus');
   btn.disabled = true;
-  statusEl.textContent = '嘗試抓取中…';
+  statusEl.textContent = '比對兩家來源中…';
   statusEl.className = 'status';
-  try{
-    const text = await fetchViaProxies('https://r.jina.ai/https://www.superrichthailand.com/#!/en/exchange');
-    // best-effort parse: look for "USD" followed by two numbers (buy/sell)
-    const usdMatch = text.match(/USD[^0-9]{0,40}(\d{2,3}\.\d{1,4})[^0-9]{1,15}(\d{2,3}\.\d{1,4})/);
-    const twdMatch = text.match(/TWD[^0-9]{0,40}(\d{1,3}\.\d{1,4})[^0-9]{1,15}(\d{1,3}\.\d{1,4})/);
-    let found = false;
-    if(usdMatch){
-      const buy = parseFloat(usdMatch[1]);
-      if(isFinite(buy) && buy > 5 && buy < 200){ $('srUsdBuy').value = buy; found = true; }
-    }
-    if(twdMatch){
-      const buy = parseFloat(twdMatch[1]);
-      if(isFinite(buy) && buy > 0 && buy < 5){ $('srTwdBuy').value = buy; found = true; }
-    }
-    if(found){
-      statusEl.textContent = '已嘗試自動更新，請再次核對';
-      statusEl.className = 'status ok';
-      calc();
-    } else {
-      throw new Error('no match');
-    }
-  }catch(e){
-    statusEl.textContent = '自動抓取不穩定，請手動輸入';
-    statusEl.className = 'status err';
-  }finally{
-    btn.disabled = false;
+
+  const sources = [
+    'https://www.superrichthailand.com/#!/en/exchange',
+    'https://www.superrich1965.com/en/exchange-rate',
+  ];
+
+  const twdCandidates = [];
+  const usdCandidates = [];
+  let sourcesHit = 0;
+
+  for(const src of sources){
+    try{
+      const text = await fetchViaProxies('https://r.jina.ai/' + src);
+      // sane bounds: TWD buying rate ~0.6–1.3 THB per TWD, USD buying rate ~20–50 THB per USD
+      const twdVals = extractNumbersNear(text, 'TWD', 0.6, 1.3);
+      const usdVals = extractNumbersNear(text, 'USD', 20, 50);
+      if(twdVals.length || usdVals.length) sourcesHit++;
+      twdCandidates.push(...twdVals);
+      usdCandidates.push(...usdVals);
+    }catch(e){ /* this source failed, move on */ }
   }
+
+  const twdMedian = median(twdCandidates);
+  const usdMedian = median(usdCandidates);
+  let found = false;
+  if(twdMedian !== null){ $('srTwdBuy').value = twdMedian.toFixed(4); found = true; }
+  if(usdMedian !== null){ $('srUsdBuy').value = usdMedian.toFixed(2); found = true; }
+
+  if(found && sourcesHit >= 2){
+    statusEl.textContent = '已交叉比對 2 個來源';
+    statusEl.className = 'status ok';
+    calc();
+  } else if(found && sourcesHit === 1){
+    statusEl.textContent = '僅 1 個來源成功，建議手動核對';
+    statusEl.className = 'status warn';
+    calc();
+  } else {
+    statusEl.textContent = '自動抓取失敗，請手動輸入';
+    statusEl.className = 'status err';
+  }
+  btn.disabled = false;
 }
 
 $('refreshBot').addEventListener('click', refreshBotRates);
