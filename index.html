@@ -3,797 +3,1166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>台幣 ⇄ 泰銖 即時換匯比較</title>
+<title>資產戰情儀表板</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
   :root{
-    --navy:#12233a;
-    --navy-2:#1b3352;
-    --cream:#faf6ec;
-    --card:#ffffff;
-    --gold:#c79a3a;
-    --gold-deep:#a67c1f;
-    --good:#1f7a5c;
-    --good-bg:#e6f4ee;
-    --bad:#b3453b;
-    --bad-bg:#fbeae8;
-    --orange:#e07b1f;
-    --orange-bg:#fdf1e4;
-    --green-label:#2f8a5b;
-    --ink:#1e2430;
-    --ink-soft:#6b7280;
-    --line:#e7e1d3;
-    --radius:14px;
+    --bg:#0B0E14;
+    --surface:#141922;
+    --surface-alt:#1B222D;
+    --line:#262E3A;
+    --gold:#D4AF6A;
+    --gold-dim:#8A7248;
+    --teal:#4FBF9F;
+    --coral:#E2685E;
+    --text:#EDEFF3;
+    --text-muted:#8993A4;
+    --text-faint:#5B6472;
   }
   *{box-sizing:border-box;}
-  html{ -webkit-text-size-adjust:100%; }
   body{
     margin:0;
-    min-height:100vh;
     background:
-      radial-gradient(circle at 12% 8%, rgba(199,154,58,0.12), transparent 40%),
-      radial-gradient(circle at 88% 90%, rgba(18,35,58,0.10), transparent 45%),
-      var(--cream);
-    font-family:'Noto Sans TC', sans-serif;
-    color:var(--ink);
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:36px 20px;
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(212,175,106,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(79,191,159,0.05), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    padding:32px 20px 80px;
+    -webkit-font-smoothing:antialiased;
   }
-
-  .panel{
-    width:100%;
-    max-width:440px;
-    background:var(--card);
-    border-radius:22px;
-    box-shadow:0 24px 60px rgba(18,35,58,0.14), 0 2px 8px rgba(18,35,58,0.06);
-    padding:28px 24px 40px;
-    position:relative;
-  }
-
-  @media (max-width:520px){
-    body{ padding:0; }
-    .panel{ border-radius:0; box-shadow:none; max-width:100%; min-height:100vh; padding:24px 18px 48px; }
-  }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:4px;
-  }
-  .brand .flag{
-    width:30px;height:30px;border-radius:50%;
-    background:conic-gradient(from 180deg, #b3453b 0 25%, #faf6ec 25% 50%, #12233a 50% 75%, #c79a3a 75% 100%);
-    flex:none;
+  .wrap{max-width:1180px;margin:0 auto;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 6px;
   }
   h1{
-    font-family:'Fraunces', serif;
-    font-size:23px;
-    font-weight:700;
-    margin:0;
-    color:var(--navy);
-    letter-spacing:0.2px;
+    font-family:'Source Serif 4',serif;
+    font-weight:600;font-size:30px;margin:0;letter-spacing:.01em;
   }
-  .sub{
-    color:var(--ink-soft);
-    font-size:12.5px;
-    margin:4px 0 24px;
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+  .status{display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--text-faint);}
+  .dot.ok{background:var(--teal);box-shadow:0 0 8px rgba(79,191,159,.7);}
+  .dot.err{background:var(--coral);box-shadow:0 0 8px rgba(226,104,94,.7);}
+  
+  /* 按鈕樣式設定 */
+  .btn-group{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  button.refresh{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;
+    background:var(--surface-alt);color:var(--text);border:1px solid var(--line);
+    padding:9px 16px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;
+    transition:all .15s;
   }
+  button.refresh:hover{border-color:var(--gold-dim);color:var(--gold);}
+  button.refresh:active{transform:translateY(1px);}
+  
+  /* ✨ AI 財務顧問專屬發光按鈕 */
+  button.ai-btn{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.05em;
+    background:linear-gradient(135deg, rgba(79,191,159,0.15) 0%, rgba(212,175,106,0.15) 100%);
+    color:var(--gold);border:1px solid rgba(212,175,106,0.4);
+    padding:9px 16px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;
+    transition:all .2s ease;font-weight:600;box-shadow: 0 0 12px rgba(212,175,106,0.15);
+  }
+  button.ai-btn:hover{
+    background:linear-gradient(135deg, rgba(79,191,159,0.28) 0%, rgba(212,175,106,0.28) 100%);
+    border-color:var(--gold);color:#FFFFFF;transform:translateY(-1px);
+    box-shadow: 0 4px 18px rgba(212,175,106,0.35);
+  }
+  button.ai-btn:active{transform:translateY(1px);}
 
-  .amount-box{
-    background:var(--navy);
-    background-image:linear-gradient(135deg, var(--navy), var(--navy-2));
-    border-radius:var(--radius);
-    padding:18px 18px 16px;
-    margin-bottom:22px;
-    color:#f2ede0;
+  .spin{animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Toast 提示框 */
+  .toast{
+    position:fixed;bottom:24px;right:24px;
+    background:linear-gradient(135deg, #1B222D 0%, #121820 100%);
+    border:1px solid var(--gold);color:var(--text);
+    padding:16px 22px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;
+    box-shadow:0 12px 35px rgba(0,0,0,0.6);z-index:9999;
+    display:flex;align-items:center;gap:10px;
+    opacity:0;transform:translateY(20px);pointer-events:none;transition:all .3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .amount-box label{
-    font-size:12px;
-    opacity:0.75;
-    letter-spacing:0.5px;
+  .toast.show{opacity:1;transform:translateY(0);pointer-events:auto;}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:14px;padding:24px;
   }
-  .amount-input-row{
-    display:flex;
-    align-items:baseline;
-    gap:8px;
-    margin-top:6px;
+  
+  /* --- 英雄區塊極致美化設計 --- */
+  .hero{
+    display:grid;grid-template-columns:1.25fr 0.85fr;gap:36px;
+    margin-bottom:24px;
+    background:linear-gradient(160deg, var(--surface) 0%, #0F131C 100%);
+    border:1px solid rgba(212,175,106,0.25);
+    border-radius:16px;padding:28px 32px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+    position:relative;overflow:hidden;
   }
-  .amount-input-row span{ font-size:18px; opacity:0.8; font-weight:600;}
-  .amount-input-row input{
-    flex:1;
-    background:transparent;
-    border:none;
-    border-bottom:2px solid rgba(242,237,224,0.35);
-    color:#fff;
-    font-family:'Fraunces', serif;
-    font-size:34px;
-    font-weight:700;
-    padding:2px 0;
-    outline:none;
-    width:100%;
-    min-width:0;
+  @media (max-width:820px){ .hero{grid-template-columns:1fr; gap:28px;} }
+  
+  .hero-left {display:flex;flex-direction:column;justify-content:space-between;z-index:1;}
+  .hero-label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-weight:600;}
+  
+  .hero-num-wrap { margin: 6px 0 18px; }
+  .hero-num{
+    font-family:'Source Serif 4',serif;font-weight:700;
+    font-size:48px;line-height:1.05;color:#FFFFFF;
+    letter-spacing:-0.01em;display:inline-block;
   }
-  .amount-input-row input:focus{ border-bottom-color:var(--gold); }
-  .quick-amounts{ display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
-  .quick-amounts button{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.18);
-    color:#f2ede0;
-    border-radius:20px;
-    padding:5px 12px;
-    font-size:12px;
-    cursor:pointer;
+  .hero-num span.currency{font-size:24px;color:var(--gold);font-weight:600;margin-right:6px;font-family:'Inter',sans-serif;vertical-align:2px;}
+  
+  .hero-sub{
+    display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;
+    padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin-bottom:20px;
   }
-  .quick-amounts button:hover{ background:rgba(255,255,255,0.18); }
+  @media (max-width:560px){ .hero-sub{grid-template-columns:repeat(2, 1fr);gap:14px;} }
+  .hero-sub div { position:relative; }
+  .hero-sub div:not(:last-child)::after {
+    content:'';position:absolute;right:-8px;top:10%;height:80%;width:1px;background:var(--line);
+  }
+  .hero-sub div .k{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:4px;}
+  .hero-sub div .v{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:var(--text);}
+  .v.pos{color:var(--teal);} .v.neg{color:var(--coral);} .v.gold{color:var(--gold);}
+
+  .goal-bars { display:flex;flex-direction:column;gap:14px; }
+  .goal-bar-wrap .k{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+  .goal-input{
+    background:var(--surface-alt);border:1px solid var(--line);border-radius:6px;
+    color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+    width:96px;padding:4px 9px;margin-left:6px;text-align:right;
+    transition:border-color .15s;line-height:1.3;vertical-align:middle;box-sizing:border-box;
+  }
+  .goal-input:focus{outline:none;border-color:var(--gold-dim);background:var(--surface);}
+  .goal-input::-webkit-outer-spin-button,.goal-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  .goal-track{height:6px;background:var(--surface-alt);border-radius:4px;overflow:hidden;border:1px solid var(--line);}
+  .goal-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:4px;transition:width .6s ease;}
+  .leverage-fill{height:100%;background:linear-gradient(90deg, var(--teal) 0%, var(--gold) 50%, var(--coral) 100%);border-radius:4px;transition:width .6s ease;}
+
+  .ring-box{display:flex;align-items:center;gap:24px;justify-content:center;height:100%;}
+  .legend{display:flex;flex-direction:column;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:130px;}
+  .legend .row{display:flex;align-items:center;gap:9px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s;}
+  .legend .row:hover{background:var(--surface-alt);}
+  .swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+  .legend .pct{color:var(--text-muted);margin-left:auto;font-weight:500;}
+  .ring-path { transition: stroke-width 0.2s, filter 0.2s; cursor: pointer; }
+  .ring-path:hover { stroke-width: 20px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+
+  /* --- 六宮格整齊劃一設計 (修正高度不一問題) --- */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0;}
+  @media (max-width:900px){ .grid3{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .grid3{grid-template-columns:1fr;} }
+
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+  @media (max-width:900px){ .grid4{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .grid4{grid-template-columns:1fr;} }
+  .grid4 .stat{padding:10px 14px;}
+  .grid4 .stat .k{font-size:10px;margin-bottom:2px;}
+  .grid4 .stat .v{font-size:15px;margin:0;line-height:1.3;}
+  .grid4 .stat .v .pct{font-size:11px;opacity:.75;margin-left:4px;font-weight:500;}
+
+  .history-toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .range-btn{
+    background:var(--surface-alt);border:1px solid var(--line);color:var(--text-muted);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 14px;border-radius:20px;
+    cursor:pointer;transition:all .15s;
+  }
+  .range-btn:hover{border-color:var(--gold-dim);color:var(--text);}
+  .range-btn.active{background:rgba(212,175,106,.15);border-color:var(--gold);color:var(--gold);font-weight:600;}
+  #historyChartWrap{width:100%;min-height:60px;}
+  #historyChartWrap svg{display:block;width:100%;height:auto;}
+  
+  .stat{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    transition:border-color .2s, transform .2s;
+  }
+  .stat:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
+  .stat .k{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  
+  .stat .v{font-family:'Source Serif 4',serif;font-size:21px;font-weight:600;color:#FFFFFF;margin:3px 0;line-height:1.2;}
+  .stat .v.pos{color:var(--teal);}
+  .stat .v.neg{color:var(--coral);}
+  /* 美金專用等式 class，防手機版折行 */
+  .stat .v.usd-eq { font-family: 'IBM Plex Mono', monospace; font-size: 18px; letter-spacing: -0.5px; }
+  @media (max-width: 450px) { .stat .v.usd-eq { font-size: 15px !important; } }
+  
+  .stat .v-sub{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:auto;padding-top:4px;}
+
+  details.stat-details{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    overflow:hidden;transition:border-color .2s, transform .2s;
+  }
+  details.stat-details:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
+  details.stat-details[open]{border-color:var(--gold-dim);background:var(--surface-alt);transform:none;}
+  summary.stat-summary{
+    padding:16px;cursor:pointer;list-style:none;user-select:none;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  summary.stat-summary::-webkit-details-marker{display:none;}
+  summary.stat-summary .k{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  summary.stat-summary .v{font-family:'Source Serif 4',serif;font-size:21px;font-weight:600;color:#FFFFFF;margin:3px 0;line-height:1.2;}
+  summary.stat-summary::after{
+    content:'▾';float:right;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:14px;transition:transform .2s;margin-top:-28px;
+  }
+  details[open] summary.stat-summary::after{transform:rotate(180deg);}
+  .cash-breakdown{
+    padding:0 20px 18px;border-top:1px dashed var(--line);margin-top:-4px;padding-top:14px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;display:flex;flex-direction:column;gap:8px;
+  }
+  .cash-item{display:flex;justify-content:space-between;color:var(--text-muted);}
+  .cash-item span:last-child{color:var(--text);font-weight:500;}
 
   .section-title{
-    font-size:12.5px;
-    font-weight:700;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-    letter-spacing:0.8px;
-    margin:26px 0 10px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+    font-family:'Source Serif 4',serif;font-size:19px;margin:34px 0 14px;
+    display:flex;align-items:center;gap:10px;color:var(--text);
   }
-  .section-title .status{
-    font-weight:500;
-    text-transform:none;
-    letter-spacing:0;
-    font-size:11.5px;
-  }
-  .status.ok{ color:var(--good); }
-  .status.err{ color:var(--bad); }
-  .status.warn{ color:var(--orange); }
+  .section-title .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);font-weight:400;}
+  .cols2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;}
+  @media (max-width:900px){ .cols2{grid-template-columns:1fr;} }
 
-  .source-badges{ display:flex; gap:6px; margin:-4px 0 10px; flex-wrap:wrap; }
-  .source-badge{
-    font-size:10.5px;
-    font-weight:700;
-    padding:3px 9px 3px 7px;
-    border-radius:20px;
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-  }
-  .source-badge .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
-  .source-badge.green{ background:var(--good-bg); color:var(--green-label); }
-  .source-badge.green .dot{ background:var(--green-label); }
-  .source-badge.orange{ background:var(--orange-bg); color:var(--orange); }
-  .source-badge.orange .dot{ background:var(--orange); }
+  /* 關鍵修正：解決手機版表格擠在一起的跑版問題 */
+  .table-responsive-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .table-responsive-wrapper table { min-width: 550px; } /* 強制寬度，不足時出現卷軸 */
+  
+  table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:13px; white-space:nowrap;}
+  th{text-align:right;color:var(--text-muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:0 0 10px;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  td{padding:9px 0;border-bottom:1px solid var(--line);text-align:right;}
+  tr:last-child td{border-bottom:none;}
+  .foot-row td{border-top:1px solid var(--gold-dim);border-bottom:none;padding-top:12px;color:var(--gold);font-weight:600;}
 
-  .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
-  .refresh-btn.orange:hover{ background:var(--orange-bg); }
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+  .pill.ok{background:rgba(79,191,159,.12);color:var(--teal);}
+  .pill.warn{background:rgba(212,175,106,.12);color:var(--gold);}
 
-  .refresh-btn{
-    border:1px solid var(--line);
-    background:#fff;
-    color:var(--navy);
-    border-radius:8px;
-    font-size:11.5px;
-    padding:3px 9px;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:4px;
-  }
-  .refresh-btn:hover{ background:var(--cream); }
-  .refresh-btn:disabled{ opacity:0.5; cursor:default; }
+  .wallet-list{max-height:290px;overflow-y:auto;padding-right:4px;}
+  .wallet-list::-webkit-scrollbar{width:5px;}
+  .wallet-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
 
-  .rate-card{
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:14px 16px;
-    margin-bottom:10px;
-    background:#fff;
-  }
-  .rate-card .row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-  }
-  .rate-card .name{ font-size:13.5px; font-weight:600; }
-  .rate-card .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .rate-card .rate-edit{
-    display:flex;
-    align-items:center;
-    gap:4px;
-  }
-  .rate-card input.rate-num{
-    width:78px;
-    text-align:right;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:6px 8px;
-    font-size:14px;
-    font-weight:700;
-    color:var(--navy);
-    font-family:'Fraunces', serif;
-  }
-  .rate-card .unit{ font-size:11px; color:var(--ink-soft); }
+  .deposit-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+  .dep-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--surface-alt);border:1px solid var(--line);padding:4px 9px;border-radius:6px;color:var(--text-muted);}
 
-  .path-card{
-    border-radius:var(--radius);
-    padding:15px 16px;
-    margin-bottom:10px;
-    background:#fff;
-    border:1px solid var(--line);
-    position:relative;
-    overflow:hidden;
-  }
-  .path-card.best{ border-color:var(--good); background:var(--good-bg); }
-  .path-card.worst{ border-color:var(--bad); background:var(--bad-bg); }
-  .path-card .tag{
-    position:absolute;
-    top:0; right:0;
-    font-size:10.5px;
-    font-weight:700;
-    padding:3px 10px;
-    border-bottom-left-radius:10px;
-    color:#fff;
-    letter-spacing:0.3px;
-  }
-  .path-card.best .tag{ background:var(--good); }
-  .path-card.worst .tag{ background:var(--bad); }
-  .path-card .title{ font-size:13px; font-weight:700; color:var(--navy); margin-bottom:6px; padding-right:70px;}
-  .path-card .route{ font-size:11.5px; color:var(--ink-soft); margin-bottom:8px; line-height:1.6;}
-  .path-card .result{
-    font-family:'Fraunces', serif;
-    font-size:38px;
-    font-weight:700;
-    color:var(--navy);
-    letter-spacing:0.2px;
-    line-height:1.1;
-    text-shadow:0 1px 0 rgba(0,0,0,0.02);
-  }
-  .path-card.best .result{ color:var(--good); }
-  .path-card.worst .result{ color:var(--bad); }
-  .path-card .result small{ font-size:15px; font-weight:600; color:var(--ink-soft); margin-left:5px;}
-  .path-card.best .result small{ color:var(--good); opacity:0.75; }
-  .path-card.worst .result small{ color:var(--bad); opacity:0.75; }
+  .timeline{position:relative;padding-left:20px;}
+  .timeline::before{content:'';position:absolute;left:4px;top:4px;bottom:4px;width:1px;background:var(--line);}
+  .tl-item{position:relative;padding-bottom:20px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{content:'';position:absolute;left:-20px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--surface);border:2px solid var(--gold-dim);}
+  .tl-item .bank{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text);}
+  .tl-item .dates{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);margin-top:3px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .tl-item .rate-col{float:right;text-align:right;}
+  .tl-item .rate{color:var(--gold);font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;}
+  .days-left{display:inline-block;font-size:10px;padding:1px 8px;border-radius:20px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+  .days-left.ok{background:rgba(79,191,159,.12);color:var(--teal);}
+  .days-left.warn{background:rgba(212,175,106,.12);color:var(--gold);}
+  .days-left.danger{background:rgba(226,104,94,.12);color:var(--coral);}
 
-  .summary{
-    margin-top:22px;
-    border-radius:18px;
-    padding:20px 18px 18px;
-    background:linear-gradient(160deg, var(--gold-deep), var(--gold) 75%);
-    color:#2a1e05;
-  }
-  .summary .headline{
-    font-family:'Fraunces', serif;
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:4px;
-  }
-  .summary .subline{
-    font-size:12px;
-    opacity:0.75;
-    margin-bottom:16px;
-  }
-  .summary-compare{
-    display:flex;
-    align-items:stretch;
-    gap:8px;
-    margin-bottom:14px;
-  }
-  .compare-item{
-    flex:1;
-    background:rgba(255,255,255,0.4);
-    border-radius:12px;
-    padding:12px 10px;
-    text-align:center;
-    min-width:0;
-  }
-  .compare-item.is-best{ background:rgba(255,255,255,0.65); box-shadow:inset 0 0 0 1.5px rgba(31,122,92,0.45); }
-  .compare-item.is-worst{ background:rgba(255,255,255,0.25); box-shadow:inset 0 0 0 1.5px rgba(179,69,59,0.3); }
-  .compare-item .clabel{
-    font-size:10.5px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:0.3px;
-    opacity:0.7;
-    margin-bottom:6px;
-  }
-  .compare-item.is-best .clabel{ color:var(--good); opacity:1; }
-  .compare-item.is-worst .clabel{ color:var(--bad); opacity:1; }
-  .compare-item .cpath{ font-size:11px; opacity:0.75; margin-bottom:6px; line-height:1.4; min-height:28px; }
-  .compare-item .cvalue{
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:19px;
-    line-height:1.2;
-  }
-  .compare-item .cvalue span{ font-size:11px; font-weight:600; opacity:0.7; margin-left:2px; }
-  .summary-vs{
-    align-self:center;
-    font-size:11px;
-    font-weight:700;
-    opacity:0.55;
-    padding:0 2px;
-  }
-  .summary-diff{
-    background:rgba(255,255,255,0.42);
-    border-radius:12px;
-    padding:12px 14px;
-    text-align:center;
-  }
-  .summary-diff .dlabel{ font-size:11px; font-weight:700; opacity:0.7; margin-bottom:3px; letter-spacing:0.3px;}
-  .summary-diff .dvalue{
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:27px;
-    line-height:1.15;
-  }
-  .summary-diff .dvalue .pct{ font-size:13px; font-weight:700; opacity:0.7; margin-left:6px; }
-  .summary .detail{ font-size:13px; line-height:1.9; }
-  .summary .diff{ font-weight:800; }
+  .chip-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+  .chip{background:var(--surface-alt);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .chip .k{font-size:10px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+  .chip .v{font-family:'IBM Plex Mono',monospace;font-size:14px;margin-top:4px;color:var(--text);}
 
-  .note{
-    font-size:11px;
-    color:var(--ink-soft);
-    line-height:1.7;
-    margin-top:18px;
-    padding-top:14px;
-    border-top:1px dashed var(--line);
-  }
-  .note a{ color:var(--navy); }
-  .link-out{
-    color:var(--navy-2);
-    text-decoration:underline;
-    cursor:pointer;
-    font-weight:600;
+  .errbox{background:rgba(226,104,94,.08);border:1px solid rgba(226,104,94,.35);border-radius:12px;padding:20px;color:#F3BEB9;font-size:13px;line-height:1.7;margin-bottom:20px;display:none;}
+  .footer-note{text-align:center;color:var(--text-faint);font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:50px;letter-spacing:.03em;}
+
+  .val-neg { color: var(--coral) !important; font-weight: 600; }
+  
+  /* --- 👁️ 隱私模式 CSS 設定：只模糊數值，保留標籤與比例 --- */
+  body.privacy-active .v:not(#leverage):not(#debtRatio),
+  body.privacy-active .hero-num span:last-child,
+  body.privacy-active #twTableBody td:nth-child(2),
+  body.privacy-active #twTableBody td:nth-child(4),
+  body.privacy-active #walletBody td:nth-child(2),
+  body.privacy-active #debtBody td:nth-child(2),
+  body.privacy-active #twTotal,
+  body.privacy-active .dep-tag {
+      filter: blur(6px);
+      opacity: 0.6;
+      pointer-events: none;
+      user-select: none;
+      transition: filter 0.3s ease, opacity 0.3s ease;
   }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="panel">
-  <div class="brand"><div class="flag"></div><h1>台幣 ⇄ 泰銖 匯率比較</h1></div>
-  <div class="sub">輸入台幣金額，比較 4 種即時匯率、3 條換匯路徑</div>
-
-  <div class="amount-box">
-    <label>我要換多少台幣 (TWD)</label>
-    <div class="amount-input-row">
-      <span>NT$</span>
-      <input id="twdAmount" type="number" value="10000" min="0" step="100" inputmode="decimal">
+  <div class="topbar">
+    <div>
+      <p class="eyebrow">Personal Ledger</p>
+      <h1>資產戰情儀表板</h1>
     </div>
-    <div class="quick-amounts">
-      <button data-v="1000">1,000</button>
-      <button data-v="5000">5,000</button>
-      <button data-v="10000">10,000</button>
-      <button data-v="30000">30,000</button>
-      <button data-v="50000">50,000</button>
-    </div>
-  </div>
-
-  <div class="section-title">
-    <span>① 台灣銀行牌告匯率（現金）</span>
-    <span id="botStatus" class="status">尚未抓取</span>
-  </div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">1. 台幣 → 泰銖（現金賣出）</div>
-        <div class="desc">跟銀行直接買泰銖現鈔</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="botThbSell" type="number" step="0.0001" value="1.0229">
-        <span class="unit">TWD/THB</span>
-      </div>
+    <div class="btn-group">
+      <div class="status"><span class="dot" id="statusDot"></span><span id="statusText">尚未載入</span></div>
+      <button class="refresh" onclick="togglePrivacy()" title="一鍵隱藏具體金額">
+        👁️ 隱私模式
+      </button>
+      <button class="ai-btn" onclick="analyzeWithGemini()" title="自動生成全盤資產簡報並開啟 Gemini 分析">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        ✨ AI 資產顧問
+      </button>
+      <button class="refresh" id="refreshBtn" onclick="loadData()">
+        <svg id="refreshIcon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        重新整理
+      </button>
     </div>
   </div>
 
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">2. 台幣 → 美金（現金賣出）</div>
-        <div class="desc">先在台灣換成美金現鈔</div>
+  <div class="errbox" id="errBox"></div>
+  <div id="aiToast" class="toast">✨ 已複製資產分析提示詞！正為您開啟 Gemini，前往直接貼上即可開始診斷 🚀</div>
+
+  <div id="dashboard" style="opacity:0;transition:opacity .4s;">
+
+    <div class="hero">
+      <div class="hero-left">
+        <div>
+          <span class="hero-label">★ 實際資產淨值 · NET ASSETS</span>
+          <div class="hero-num-wrap">
+            <div class="hero-num"><span class="currency">NT$</span><span id="netAssets">—</span></div>
+          </div>
+        </div>
+        
+        <div class="hero-sub">
+          <div><div class="k">帳面總資產</div><div class="v" id="grossAssets">—</div></div>
+          <div><div class="k">總負債</div><div class="v neg" id="totalDebt">—</div></div>
+          <div><div class="k">核心槓桿</div><div class="v gold" id="leverage">—</div></div>
+          <div><div class="k">資產負債比</div><div class="v" id="debtRatio">—</div></div>
+        </div>
+        
+        <div class="goal-bars">
+          <div class="goal-bar-wrap">
+            <div class="k">
+              <span>年度資產目標 NT$<input type="text" inputmode="numeric" id="goalInput" class="goal-input" oninput="onGoalInputChange()" onfocus="onGoalFocus()" onblur="onGoalBlur()"></span>
+              <span id="goalPct" style="color:var(--gold);font-weight:600;">—</span>
+            </div>
+            <div class="goal-track"><div class="goal-fill" id="goalFill" style="width:0%"></div></div>
+          </div>
+          <div class="goal-bar-wrap">
+            <div class="k">
+              <span>核心投資槓桿 <span style="color:var(--text-faint); font-size:10px;">[1.0x 無槓桿 ➔ 3.0x 上限]</span></span>
+              <span id="leverageBarVal" style="color:var(--text); font-weight:600;">—</span>
+            </div>
+            <div class="goal-track" style="background:var(--surface-alt);">
+              <div class="leverage-fill" id="leverageFill" style="width:0%;"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="botUsdSell" type="number" step="0.001" value="32.48">
-        <span class="unit">TWD/USD</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:right; margin:-2px 0 4px;">
-    <button class="refresh-btn" id="refreshBot">↻ 重新抓取台銀即時匯率</button>
-  </div>
-  <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
-
-  <div class="section-title">
-    <span>② 泰國 Super Rich（buying rate・雙來源比對）</span>
-    <span id="srStatus" class="status">請確認/手動輸入</span>
-  </div>
-  <div class="source-badges">
-    <span class="source-badge green"><span class="dot"></span>Super Rich Thailand（綠標）</span>
-    <span class="source-badge orange"><span class="dot"></span>Super Rich 1965（橘標）</span>
-  </div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">3. 台幣 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">泰國當地用台幣現鈔換泰銖・近期大約在 0.9~1.1 之間浮動・自動抓取時常錯誤・可手動輸入試算較為準確・實際換匯還請以官網、現場為準・多數分店不收台幣或匯率很差，請務必到店現場確認</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
-        <span class="unit">THB/TWD</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">4. 美金 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">在泰國用美金現鈔換泰銖・同樣會比對兩家來源</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
-        <span class="unit">THB/USD</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:right; margin:-2px 0 14px; display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
-    <button class="refresh-btn" id="refreshSr">↻ 重新比對兩家匯率</button>
-    <button class="refresh-btn" id="openSrGreen">↗ Super Rich Thailand</button>
-    <button class="refresh-btn orange" id="openSrOrange">↗ Super Rich 1965</button>
-  </div>
-
-  <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
-
-  <div class="path-card" id="cardA">
-    <div class="title">路徑 A・台灣銀行直接換泰銖</div>
-    <div class="route">台幣 → 泰銖（用①的匯率）</div>
-    <div class="result" id="resultA">-- <small>THB</small></div>
-  </div>
-
-  <div class="path-card" id="cardB">
-    <div class="title">路徑 B・台灣換美金 → 泰國換泰銖</div>
-    <div class="route">台幣 → 美金（用②）→ 泰銖（用④）</div>
-    <div class="result" id="resultB">-- <small>THB</small></div>
-  </div>
-
-  <div class="path-card" id="cardC">
-    <div class="title">路徑 C・泰國直接用台幣換泰銖</div>
-    <div class="route">台幣 → 泰銖（用③，Super Rich 現場匯率）</div>
-    <div class="result" id="resultC">-- <small>THB</small></div>
-  </div>
-
-  <div class="summary">
-    <div class="headline" id="summaryHeadline">最佳與最差路徑比較</div>
-    <div class="subline" id="summarySubline">輸入金額後即會自動計算</div>
-    <div class="summary-compare" id="summaryCompare"></div>
-    <div class="summary-diff" id="summaryDiffBox" style="display:none;">
-      <div class="dlabel">整體差距</div>
-      <div class="dvalue" id="summaryDiffValue">--</div>
-    </div>
-  </div>
-
-  <div class="section-title" style="margin-top:26px;">④ 這些差額能喝幾杯 LadyDrink？</div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">🍹 LadyDrink 一杯多少錢</div>
-        <div class="desc">自行輸入你常去的價格</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="ladyDrinkPrice" type="number" step="1" value="200" min="1">
-        <span class="unit">THB</span>
+      
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;">
+        <span class="hero-label" style="margin-bottom:16px;">資產配置 · ALLOCATION</span>
+        <div class="ring-box">
+          <svg width="160" height="160" viewBox="0 0 160 160" id="ringSvg"></svg>
+          <div class="legend" id="legendBox"></div>
+        </div>
       </div>
     </div>
-    <div class="quick-amounts" style="margin-top:10px;">
-      <button data-lp="180">180</button>
-      <button data-lp="190">190</button>
-      <button data-lp="200">200</button>
-      <button data-lp="220">220</button>
-      <button data-lp="250">250</button>
+
+    <div class="section-title">資產歷史 <span class="tag">淨資產走勢 · 每次成功讀取自動記錄當天數值</span></div>
+    <div class="card">
+      <div class="history-toolbar">
+        <button class="range-btn" data-range="7" onclick="setHistoryRange('7')">7天</button>
+        <button class="range-btn active" data-range="30" onclick="setHistoryRange('30')">30天</button>
+        <button class="range-btn" data-range="90" onclick="setHistoryRange('90')">90天</button>
+        <button class="range-btn" data-range="year" onclick="setHistoryRange('year')">今年</button>
+        <button class="range-btn" data-range="all" onclick="setHistoryRange('all')">All</button>
+      </div>
+      <div id="historyChartWrap"></div>
     </div>
+
+    <div class="section-title">每日變化 <span class="tag">淨資產漲跌</span></div>
+    <div class="grid4">
+      <div class="stat"><div class="k">今日</div><div class="v" id="chgDay">—</div></div>
+      <div class="stat"><div class="k">本週</div><div class="v" id="chgWeek">—</div></div>
+      <div class="stat"><div class="k">本月</div><div class="v" id="chgMonth">—</div></div>
+      <div class="stat"><div class="k">今年</div><div class="v" id="chgYear">—</div></div>
+    </div>
+
+    <div class="grid3">
+      <div class="stat"><div class="k">台股帳面</div><div class="v" id="stTwStock">—</div><div class="v-sub" style="visibility:hidden;">-</div></div>
+      <div class="stat"><div class="k">美股帳面</div><div class="v" id="stUsStock">—</div><div class="v-sub" style="visibility:hidden;">-</div></div>
+      <div class="stat"><div class="k">幣圈帳面</div><div class="v" id="stCrypto">—</div><div class="v-sub" style="visibility:hidden;">-</div></div>
+      
+      <details class="stat-details">
+        <summary class="stat-summary">
+          <div class="k"><span>台幣現金 <span style="font-size:10px;color:var(--gold);margin-left:4px;">[點擊展開]</span></span></div>
+          <div class="v" id="stCash">—</div>
+          <div class="v-sub" style="visibility:hidden;">-</div>
+        </summary>
+        <div class="cash-breakdown">
+          <div class="cash-item"><span>第一銀行</span><span id="cashBankA">—</span></div>
+          <div class="cash-item"><span>國泰世華</span><span id="cashBankB">—</span></div>
+          <div class="cash-item"><span>連線銀行</span><span id="cashBankC">—</span></div>
+        </div>
+      </details>
+
+      <div class="stat">
+        <div class="k">美金部位</div>
+        <div class="v usd-eq" id="stUsdMain">—</div>
+        <div class="v-sub" id="stUsdSub">即時匯率 —</div>
+      </div>
+      
+      <div class="stat">
+        <div class="k">應收外債</div>
+        <div class="v" id="stForeign">—</div>
+        <div class="v-sub" style="visibility:hidden;">-</div>
+      </div>
+    </div>
+
+    <div class="section-title">負債與借款 <span class="tag">主要負債與還款時程</span></div>
+    <div class="cols2">
+      <div class="card">
+        <div class="label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">主要負債項目</div>
+        <table>
+          <tbody id="debtBody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">借款與還款時程</div>
+        <div style="display:flex;justify-content:space-between;padding:0 0 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px;">
+          <span style="font-size:10px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;cursor:pointer;user-select:none;" onclick="toggleLoanSort()" title="點擊依到期日切換近-遠排序">借款日 → 到期日 <span id="loanSortArrow" style="font-size:10px;margin-left:3px;">▼</span></span>
+          <span style="font-size:10px;color:var(--text-faint);letter-spacing:.06em;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">目前利率</span>
+        </div>
+        <div class="timeline" id="loanTimeline"></div>
+      </div>
+    </div>
+
+    <div class="section-title">台股持股 <span class="tag" id="twUpdated"></span></div>
+    <div class="card table-responsive-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>標的</th>
+            <th>張數</th>
+            <th>股價</th>
+            <th style="color:var(--gold);cursor:pointer;user-select:none;" onclick="toggleTwSort()" title="點擊依金額切換高低排序">
+              金額 (NT$) <span id="twSortArrow" style="font-size:10px;margin-left:4px;">▼</span>
+            </th>
+            <th>持股權重</th>
+          </tr>
+        </thead>
+        <tbody id="twTableBody"></tbody>
+        <tfoot>
+          <tr class="foot-row"><td>台股帳面價值合計</td><td colspan="2"></td><td id="twTotal">—</td><td>借貸維持率 <span class="pill ok" id="marginRatio">—</span></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="section-title">美股 <span class="tag" id="usUpdated"></span></div>
+    <div class="cols2">
+      <div class="card">
+        <div class="chip-row">
+          <div class="chip"><div class="k">部位金額 USD</div><div class="v" id="usUsd">—</div></div>
+          <div class="chip"><div class="k">換算台幣</div><div class="v" id="usTwd">—</div></div>
+          <div class="chip"><div class="k">即時匯率</div><div class="v" id="usFx">—</div></div>
+        </div>
+        <div class="chip-row">
+          <div class="chip"><div class="k">總投入 USD</div><div class="v" id="usInvested">—</div></div>
+          <div class="chip"><div class="k">帳面收益 USD</div><div class="v" id="usProfit">—</div></div>
+          <div class="chip"><div class="k">投報率</div><div class="v" id="usRoi">—</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;">入金紀錄 (USD)</div>
+        <div class="deposit-tags" id="depositTags"></div>
+      </div>
+    </div>
+
+    <div class="section-title">幣圈資產 <span class="tag" id="cryptoUpdated"></span></div>
+    <div class="cols2">
+      <div class="card">
+        <div class="chip-row" style="grid-template-columns:1fr 1fr;">
+          <div class="chip"><div class="k">總價值 USD</div><div class="v" id="cryptoUsd">—</div></div>
+          <div class="chip"><div class="k">換算台幣</div><div class="v" id="cryptoTwd">—</div></div>
+        </div>
+        <div class="chip" style="margin-top:12px;"><div class="k">BTC 持有量</div><div class="v" id="btcAmt">—</div></div>
+      </div>
+      <div class="card">
+        <div class="wallet-list">
+          <table>
+            <thead>
+              <tr>
+                <th>錢包 / 平台</th>
+                <th style="color:var(--teal);cursor:pointer;user-select:none;" onclick="toggleWalletSort()" title="點擊切換排序">
+                  帳面價值 (USD) <span id="sortArrow" style="font-size:10px;margin-left:4px;">▼</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="walletBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="summary" id="ladyDrinkSummary" style="background:linear-gradient(135deg, #1b3352, #12233a); color:#f2ede0;">
-    <div class="headline">🎉 太好了！</div>
-    <div class="detail" id="ladyDrinkDetail">輸入匯率後即會自動計算</div>
-  </div>
-
-  <div class="note">
-    説明：①②會嘗試即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金匯率）。③④會同時嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand（綠標）</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965（橘標）</span> 兩家匯率取中位數，因兩者網站皆為前端動態載入、且台幣非常態掛牌幣別，無法保證每次都成功，建議出發前以官網或門市現場公告為準，並手動核對上方數字。所有結果僅供參考，實際交易以銀行/兌換點當下匯率及手續費為準。
-  </div>
+  <div class="footer-note">資料來源：Google 試算表（公開發布 CSV）· 手動更新試算表後，重新整理此頁即可同步</div>
 </div>
 
 <script>
-const $ = (id) => document.getElementById(id);
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTMDQCi1zQNLZLrDJ0nxByFqaQrJv8NcH7aXZ_59dpzapOcasM4neXW-3d_Njw6zPdtZtLNkUoG07IN/pub?output=csv";
 
-function fmt(n, digits=2){
-  if(!isFinite(n)) return '--';
-  return n.toLocaleString('zh-TW', {minimumFractionDigits:digits, maximumFractionDigits:digits});
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const fmtMoney = n => {
+  const isNeg = n < 0;
+  return `<span class="${isNeg ? 'val-neg' : ''}">${isNeg ? '-NT$ ' : 'NT$ '}${fmtInt(Math.abs(n))}</span>`;
+};
+const fmtUsd = n => {
+  const isNeg = n < 0;
+  return `<span class="${isNeg ? 'val-neg' : ''}">${isNeg ? '-$' : '$'}${fmtInt(Math.abs(n))}</span>`;
+};
+// 保留小數點後兩位，專門給有小數精確度需求的欄位
+const fmtUsdDec = n => {
+  const isNeg = n < 0;
+  return `<span class="${isNeg ? 'val-neg' : ''}">${isNeg ? '-$' : '$'}${Math.abs(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
+};
+const fmtPct = n => {
+  const isNeg = n < 0;
+  return `<span class="${isNeg ? 'val-neg' : ''}">${(n*100).toFixed(1)}%</span>`;
+};
+
+function parseNum(v){
+  if(v===undefined||v===null) return 0;
+  let s = String(v).trim();
+  if(s==='') return 0;
+  let neg = false;
+  if(/^\(.*\)$/.test(s)){ neg = true; s = s.slice(1,-1); }
+  const isPercent = s.includes('%');
+  s = s.replace(/[^0-9.\-]/g,'');
+  if(s===''||s==='-') return 0;
+  let n = parseFloat(s);
+  if(isNaN(n)) return 0;
+  if(neg) n = -Math.abs(n);
+  if(isPercent) n = n/100;
+  return n;
 }
-
-function calc(){
-  const twd = parseFloat($('twdAmount').value) || 0;
-  const botThbSell = parseFloat($('botThbSell').value) || 0;
-  const botUsdSell = parseFloat($('botUsdSell').value) || 0;
-  const srTwdBuy = parseFloat($('srTwdBuy').value) || 0;
-  const srUsdBuy = parseFloat($('srUsdBuy').value) || 0;
-
-  const pathA = botThbSell > 0 ? twd / botThbSell : NaN;
-  const usdLeg = botUsdSell > 0 ? twd / botUsdSell : NaN;
-  const pathB = (isFinite(usdLeg) && srUsdBuy > 0) ? usdLeg * srUsdBuy : NaN;
-  const pathC = twd * srTwdBuy;
-
-  $('resultA').innerHTML = fmt(pathA) + ' <small>THB</small>';
-  $('resultB').innerHTML = fmt(pathB) + ' <small>THB</small>' + (isFinite(usdLeg) ? ` <small style="display:block;font-size:11px;margin-top:2px;">(先換得 US$${fmt(usdLeg)})</small>` : '');
-  $('resultC').innerHTML = fmt(pathC) + ' <small>THB</small>';
-
-  const paths = [
-    {key:'A', el:'cardA', val:pathA, name:'路徑 A（台灣銀行直換）'},
-    {key:'B', el:'cardB', val:pathB, name:'路徑 B（台灣換美金→泰國換泰銖）'},
-    {key:'C', el:'cardC', val:pathC, name:'路徑 C（泰國 Super Rich 直換）'},
-  ];
-
-  ['cardA','cardB','cardC'].forEach(id=>{
-    $(id).classList.remove('best','worst');
-    const existingTag = $(id).querySelector('.tag');
-    if(existingTag) existingTag.remove();
-  });
-
-  const validPaths = paths.filter(p=>isFinite(p.val) && p.val>0);
-  if(validPaths.length >= 2){
-    const best = validPaths.reduce((a,b)=> a.val>b.val ? a : b);
-    const worst = validPaths.reduce((a,b)=> a.val<b.val ? a : b);
-    if(best.key !== worst.key){
-      const bestCard = $(best.el);
-      const worstCard = $(worst.el);
-      bestCard.classList.add('best');
-      const tagB = document.createElement('div'); tagB.className='tag'; tagB.textContent='最划算';
-      bestCard.appendChild(tagB);
-      worstCard.classList.add('worst');
-      const tagW = document.createElement('div'); tagW.className='tag'; tagW.textContent='最不划算';
-      worstCard.appendChild(tagW);
-
-      const diff = best.val - worst.val;
-      const pct = (diff / worst.val) * 100;
-      $('summaryHeadline').textContent = `🏆 ${best.name} 勝出`;
-      $('summarySubline').textContent = `換 NT$${fmt(twd,0)} 時的比較結果`;
-      $('summaryCompare').innerHTML = `
-        <div class="compare-item is-best">
-          <div class="clabel">✓ 最划算</div>
-          <div class="cpath">${best.name}</div>
-          <div class="cvalue">${fmt(best.val)}<span>THB</span></div>
-        </div>
-        <div class="summary-vs">vs</div>
-        <div class="compare-item is-worst">
-          <div class="clabel">✕ 最不划算</div>
-          <div class="cpath">${worst.name}</div>
-          <div class="cvalue">${fmt(worst.val)}<span>THB</span></div>
-        </div>`;
-      $('summaryDiffBox').style.display = 'block';
-      $('summaryDiffValue').innerHTML = `${fmt(diff)} THB <span class="pct">（約 ${fmt(pct,1)}%）</span>`;
-      updateLadyDrink(diff);
-    } else {
-      $('summaryHeadline').textContent = '各路徑差異不大';
-      $('summarySubline').textContent = '目前輸入的匯率下，各路徑結果非常接近。';
-      $('summaryCompare').innerHTML = '';
-      $('summaryDiffBox').style.display = 'none';
-      updateLadyDrink(0);
-    }
-  } else {
-    $('summaryHeadline').textContent = '請輸入完整匯率';
-    $('summarySubline').textContent = '至少需要兩條有效路徑才能比較。';
-    $('summaryCompare').innerHTML = '';
-    $('summaryDiffBox').style.display = 'none';
-    updateLadyDrink(NaN);
+function safe(data,r,c){
+  if(!data[r]) return '';
+  const v = data[r][c];
+  return (v===undefined||v===null) ? '' : String(v).trim();
+}
+function excelDate(raw){
+  const s = (raw===undefined||raw===null) ? '' : String(raw).trim();
+  if(s === '') return '—';
+  if(/\d{4}[/-]\d{1,2}[/-]\d{1,2}/.test(s)) return s.replace(/-/g,'/');
+  if(/\d{1,2}[/-]\d{1,2}[/-]\d{4}/.test(s)){
+    const parts = s.split(/[/-]/);
+    return `${parts[2]}/${parts[0].padStart(2,'0')}/${parts[1].padStart(2,'0')}`;
   }
+  const n = parseNum(s);
+  if(!n) return s;
+  const utcDays = Math.floor(n - 25569);
+  const d = new Date(utcDays*86400*1000);
+  return `${d.getUTCFullYear()}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+function parseDateObj(raw){
+  const s = (raw===undefined||raw===null) ? '' : String(raw).trim();
+  if(s === '') return null;
+  let y,m,d;
+  if(/^\d{4}[/-]\d{1,2}[/-]\d{1,2}$/.test(s)){
+    const p = s.split(/[/-]/); y=+p[0]; m=+p[1]; d=+p[2];
+  }else if(/^\d{1,2}[/-]\d{1,2}[/-]\d{4}$/.test(s)){
+    const p = s.split(/[/-]/); y=+p[2]; m=+p[0]; d=+p[1];
+  }else{
+    const n = parseNum(s);
+    if(!n) return null;
+    const utcDays = Math.floor(n - 25569);
+    return new Date(utcDays*86400*1000);
+  }
+  return new Date(Date.UTC(y, m-1, d));
+}
+function daysLeftInfo(dueRaw){
+  const due = parseDateObj(dueRaw);
+  if(!due) return { text:'—', cls:'ok' };
+  const today = new Date();
+  const todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const diff = Math.round((due.getTime() - todayUTC) / 86400000);
+  if(diff < 0) return { text:'已逾期 ' + Math.abs(diff) + ' 天', cls:'danger' };
+  if(diff === 0) return { text:'今日到期', cls:'danger' };
+  const cls = diff <= 30 ? 'danger' : diff <= 90 ? 'warn' : 'ok';
+  return { text:'剩餘 ' + diff + ' 天', cls };
 }
 
-function updateLadyDrink(diffThb){
-  const price = parseFloat($('ladyDrinkPrice').value) || 0;
-  const detailEl = $('ladyDrinkDetail');
-  if(!isFinite(diffThb) || price <= 0){
-    detailEl.textContent = '請輸入完整匯率與 LadyDrink 價格';
+const COLORS = { tw:'#D4AF6A', us:'#4FBF9F', crypto:'#7DA6E0', cash:'#C88BC4' };
+
+let twStocks = [];
+let isTwSortDesc = true;
+let cryptoWallets = [];
+let isSortDesc = true;
+let loanList = [];
+let isLoanSortAsc = true;
+let lastNetAssets = 0;
+let lastGoalPct = 0;
+let lastGoalValue = 8000000;
+let assetHistory = [];
+let historyRange = '30';
+let latestDataSummary = null; 
+
+// 開關隱私模式
+function togglePrivacy() {
+  document.body.classList.toggle('privacy-active');
+}
+
+// 台股排序
+function toggleTwSort() {
+  isTwSortDesc = !isTwSortDesc;
+  document.getElementById('twSortArrow').textContent = isTwSortDesc ? '▼' : '▲';
+  renderTwStocks();
+}
+function renderTwStocks() {
+  twStocks.sort((a, b) => isTwSortDesc ? b.amount - a.amount : a.amount - b.amount);
+  document.getElementById('twTableBody').innerHTML = twStocks.map(s => `
+    <tr><td>${s.name}</td><td>${s.shares}</td><td>${s.price}</td><td>${fmtMoney(s.amount)}</td><td>${fmtPct(s.weight)}</td></tr>
+  `).join('');
+}
+
+// 幣圈錢包排序
+function toggleWalletSort() {
+  isSortDesc = !isSortDesc;
+  document.getElementById('sortArrow').textContent = isSortDesc ? '▼' : '▲';
+  renderWallets();
+}
+function renderWallets() {
+  cryptoWallets.sort((a, b) => isSortDesc ? b.value - a.value : a.value - b.value);
+  document.getElementById('walletBody').innerHTML = cryptoWallets.map(w => `
+    <tr><td>${w.name}</td><td>${fmtUsd(w.value)}</td></tr>
+  `).join('');
+}
+
+// 借款到期日排序（近→遠 / 遠→近）
+function toggleLoanSort() {
+  isLoanSortAsc = !isLoanSortAsc;
+  document.getElementById('loanSortArrow').textContent = isLoanSortAsc ? '▼' : '▲';
+  renderLoans();
+}
+function renderLoans() {
+  loanList.sort((a, b) => {
+    const da = parseDateObj(a.dueRaw), db = parseDateObj(b.dueRaw);
+    const ta = da ? da.getTime() : Infinity, tb = db ? db.getTime() : Infinity;
+    return isLoanSortAsc ? ta - tb : tb - ta;
+  });
+  document.getElementById('loanTimeline').innerHTML = loanList.map(l => {
+    const dl = daysLeftInfo(l.dueRaw);
+    return `
+    <div class="tl-item">
+      <div class="rate-col">
+        <span class="rate">${(l.rate*100).toFixed(2)}%</span>
+      </div>
+      <div class="bank">${l.bank}</div>
+      <div class="dates">
+        <span>${l.start} → ${l.due}</span>
+        <span class="days-left ${dl.cls}">${dl.text}</span>
+      </div>
+    </div>
+  `;
+  }).join('');
+}
+
+// ✨ Gemini AI 財務顧問
+function analyzeWithGemini() {
+  if (!latestDataSummary) {
+    alert("數據尚未載入完成，請稍候再試！");
     return;
   }
-  const drinks = diffThb / price;
-  const drinksRounded = Math.round(drinks * 10) / 10;
-  if(diffThb <= 0){
-    detailEl.innerHTML = '這次換匯路徑差異不大，先省下腦力，乾脆隨便選一條路徑，把力氣留給喝酒。';
+  
+  const prompt = `你是一位專業的私人財富管理顧問（Private Wealth Manager）與財務風控專家。以下是我目前的「個人資產戰情儀表板」真實數據，請幫我進行全盤檢視與診斷，並給予具體可執行的優化建議：
+
+【一、核心資產淨值與風控指標】
+- 實際資產淨值（Net Assets）：NT$ ${fmtInt(latestDataSummary.netAssets)}
+- 帳面總資產（Gross Assets）：NT$ ${fmtInt(latestDataSummary.grossAssets)}
+- 總負債金額（Total Debt）：NT$ ${fmtInt(-Math.abs(latestDataSummary.totalDebt))}
+- 核心投資槓桿倍數：${latestDataSummary.leverage.toFixed(3)}x（安全警戒上限設為 3.0x）
+- 資產負債比：${(latestDataSummary.debtRatio*100).toFixed(1)}%
+- 年度資產目標達成率：NT$ ${fmtInt(latestDataSummary.goal)}（目前已達成 ${(latestDataSummary.goalPct*100).toFixed(1)}%）
+
+【二、六大核心資產配置權重】
+- 台股帳面：NT$ ${fmtInt(latestDataSummary.aTwStock)} (佔流動配置 ${(latestDataSummary.aTwStock/latestDataSummary.totalAlloc*100).toFixed(1)}%)
+- 美股帳面：NT$ ${fmtInt(latestDataSummary.aUsStock)} (佔流動配置 ${(latestDataSummary.aUsStock/latestDataSummary.totalAlloc*100).toFixed(1)}%)
+- 幣圈帳面：NT$ ${fmtInt(latestDataSummary.aCrypto)} (佔流動配置 ${(latestDataSummary.aCrypto/latestDataSummary.totalAlloc*100).toFixed(1)}%)
+- 台幣現金：NT$ ${fmtInt(latestDataSummary.aCash)} (佔流動配置 ${(latestDataSummary.aCash/latestDataSummary.totalAlloc*100).toFixed(1)}%)
+- 美金部位：約 $${latestDataSummary.aUsdInUsd.toFixed(2)} USD (= NT$ ${fmtInt(latestDataSummary.aUsd)})
+- 應收外債：NT$ ${fmtInt(latestDataSummary.aForeign)}
+
+【三、台股前三大核心持股】
+${latestDataSummary.topTwStocks.map((s, idx) => `${idx+1}. ${s.name}：NT$ ${fmtInt(s.amount)} (佔台股部位 ${(s.weight*100).toFixed(1)}%)`).join('\n')}
+
+【四、主要負債結構】
+- 股票質借：NT$ ${fmtInt(-Math.abs(latestDataSummary.dStock))}
+- 銀行信貸：NT$ ${fmtInt(-Math.abs(latestDataSummary.dCredit))}
+- 借款（爸）：NT$ ${fmtInt(-Math.abs(latestDataSummary.dParents))}
+
+請你從以下三個面向為我深度剖析：
+1. 【資產配置與防禦力診斷】：目前的股、幣、現金與外幣比例是否均衡？現金流動性與防禦水位是否安全？
+2. 【槓桿與負債結構評估】：目前 ${latestDataSummary.leverage.toFixed(3)}x 的槓桿倍數與質借/信貸配置是否健康？在當前宏觀環境下有何潛在風險？
+3. 【衝刺年度資產目標戰略】：距離目標 NT$ ${fmtInt(latestDataSummary.goal)} 還剩下約 ${(100 - latestDataSummary.goalPct*100).toFixed(1)}%（約 NT$ ${fmtInt(Math.max(0, latestDataSummary.goal - latestDataSummary.netAssets)/10000)} 萬），剩下的時間內，有什麼具體可執行的投資配置調整或策略，能助我穩健達標？
+
+請用專業、誠懇且條理分明的繁體中文為我解答！`;
+
+  navigator.clipboard.writeText(prompt).then(() => {
+    const toast = document.getElementById('aiToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 5000);
+    window.open('https://gemini.google.com/app', '_blank');
+  }).catch(() => {
+    alert("已為您產生診斷提示詞！請複製後前往 Gemini 貼上：\n\n" + prompt);
+    window.open('https://gemini.google.com/app', '_blank');
+  });
+}
+
+// 年度資產目標：手動輸入，存在瀏覽器本機，跟即時淨資產比對算進度
+function readGoalRaw(){
+  const input = document.getElementById('goalInput');
+  let v = parseFloat(String(input.value).replace(/,/g,''));
+  if(isNaN(v) || v <= 0) v = 8000000;
+  return v;
+}
+function initGoalInput(){
+  const saved = localStorage.getItem('assetGoalTarget');
+  const v = saved ? parseFloat(saved) : 8000000;
+  document.getElementById('goalInput').value = fmtInt(v);
+}
+function onGoalFocus(){
+  const input = document.getElementById('goalInput');
+  input.value = String(readGoalRaw());
+}
+function onGoalBlur(){
+  const input = document.getElementById('goalInput');
+  input.value = fmtInt(readGoalRaw());
+}
+function onGoalInputChange(){
+  localStorage.setItem('assetGoalTarget', readGoalRaw());
+  updateGoalUI();
+}
+function updateGoalUI(){
+  const goalValue = readGoalRaw();
+  const rawPct = lastNetAssets / goalValue;
+  const barPct = Math.max(0, Math.min(rawPct, 1));
+  lastGoalValue = goalValue;
+  lastGoalPct = rawPct;
+  document.getElementById('goalPct').innerHTML = fmtPct(rawPct);
+  document.getElementById('goalFill').style.width = (barPct*100).toFixed(1) + '%';
+}
+
+// ---- 資產歷史：本機自動記錄每天讀取到的淨資產，畫成走勢圖 ----
+const HISTORY_KEY = 'assetDashboardHistoryLog';
+
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }catch(e){ return []; }
+}
+function saveHistory(arr){
+  try{ localStorage.setItem(HISTORY_KEY, JSON.stringify(arr)); }catch(e){}
+}
+function dateStrFrom(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function recordSnapshot(netAssets, grossAssets, totalDebt){
+  let hist = loadHistory();
+  const ds = dateStrFrom(new Date());
+  const idx = hist.findIndex(h => h.date === ds);
+  const entry = { date: ds, netAssets, grossAssets, totalDebt };
+  if(idx >= 0) hist[idx] = entry; else hist.push(entry);
+  hist.sort((a,b) => a.date.localeCompare(b.date));
+  if(hist.length > 730) hist = hist.slice(hist.length - 730);
+  saveHistory(hist);
+  assetHistory = hist;
+}
+function closestOnOrBefore(hist, targetDate){
+  let best = null;
+  for(const h of hist){
+    const hd = new Date(h.date + 'T00:00:00');
+    if(hd.getTime() <= targetDate.getTime()){
+      if(!best || hd.getTime() > new Date(best.date+'T00:00:00').getTime()) best = h;
+    }
+  }
+  return best;
+}
+function setChangeCard(id, diff, base){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isPos = diff >= 0;
+  const pct = base ? (diff / Math.abs(base) * 100) : 0;
+  el.className = 'v ' + (isPos ? 'pos' : 'neg');
+  el.innerHTML = `${isPos ? '▲' : '▼'} NT$ ${fmtInt(Math.abs(diff))}<span class="pct">(${isPos?'+':'-'}${Math.abs(pct).toFixed(2)}%)</span>`;
+}
+function renderChanges(){
+  if(!assetHistory.length) return;
+  const latest = assetHistory[assetHistory.length - 1];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate()-7);
+  const monthAgo = new Date(today); monthAgo.setDate(monthAgo.getDate()-30);
+  const yearStart = new Date(today.getFullYear(), 0, 1);
+
+  const dayBase = closestOnOrBefore(assetHistory, yesterday) || assetHistory[0];
+  const weekBase = closestOnOrBefore(assetHistory, weekAgo) || assetHistory[0];
+  const monthBase = closestOnOrBefore(assetHistory, monthAgo) || assetHistory[0];
+  const yearBase = closestOnOrBefore(assetHistory, yearStart) || assetHistory[0];
+
+  setChangeCard('chgDay', latest.netAssets - dayBase.netAssets, dayBase.netAssets);
+  setChangeCard('chgWeek', latest.netAssets - weekBase.netAssets, weekBase.netAssets);
+  setChangeCard('chgMonth', latest.netAssets - monthBase.netAssets, monthBase.netAssets);
+  setChangeCard('chgYear', latest.netAssets - yearBase.netAssets, yearBase.netAssets);
+}
+function setHistoryRange(r){
+  historyRange = r;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === r));
+  renderHistoryChart();
+}
+function filterHistoryByRange(){
+  if(!assetHistory.length) return [];
+  const now = new Date();
+  if(historyRange === 'all') return assetHistory;
+  if(historyRange === 'year'){
+    const yearStartStr = `${now.getFullYear()}-01-01`;
+    return assetHistory.filter(h => h.date >= yearStartStr);
+  }
+  const days = parseInt(historyRange, 10);
+  const cutoff = new Date(now); cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = dateStrFrom(cutoff);
+  return assetHistory.filter(h => h.date >= cutoffStr);
+}
+function renderHistoryChart(){
+  const wrap = document.getElementById('historyChartWrap');
+  if(!wrap) return;
+  const data = filterHistoryByRange();
+  if(data.length < 2){
+    wrap.innerHTML = `<div style="padding:34px 10px;text-align:center;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.8;">
+      資料還太少，多打開幾天頁面後就會顯示走勢圖 📈<br>
+      <span style="font-size:11px;">（每次成功讀取試算表，會自動記錄當天的淨資產）</span>
+    </div>`;
     return;
   }
-  detailEl.innerHTML =
-    `選對路徑省下的 <b>${fmt(diffThb)} THB</b>，以一杯 <b>${fmt(price,0)} THB</b> 計算，` +
-    `多了 <span class="diff" style="font-size:20px;">${fmt(drinksRounded,1)} 杯</span> LadyDrink 可以請！`;
+  const W = 640, H = 190, padL = 78, padR = 16, padT = 20, padB = 28;
+  const values = data.map(d => d.netAssets);
+  let min = Math.min(...values), max = Math.max(...values);
+  if(min === max){ min -= 1; max += 1; }
+  const range = max - min;
+  const innerW = W - padL - padR;
+  const stepX = data.length > 1 ? innerW / (data.length - 1) : 0;
+  const xy = (i, v) => {
+    const x = padL + i * stepX;
+    const y = padT + (H - padT - padB) * (1 - (v - min) / range);
+    return [x, y];
+  };
+  let pathD = '';
+  data.forEach((d, i) => {
+    const [x, y] = xy(i, d.netAssets);
+    pathD += (i === 0 ? `M${x},${y}` : ` L${x},${y}`);
+  });
+  const [lastX] = xy(data.length-1, data[data.length-1].netAssets);
+  const [firstX] = xy(0, data[0].netAssets);
+  const areaD = pathD + ` L${lastX},${H-padB} L${firstX},${H-padB} Z`;
+
+  const labelIdxs = [...new Set([0, Math.floor((data.length-1)/2), data.length-1])];
+  let labels = '';
+  labelIdxs.forEach(i => {
+    const [x] = xy(i, data[i].netAssets);
+    labels += `<text x="${x}" y="${H-8}" text-anchor="middle" fill="#5B6472" font-family="IBM Plex Mono, monospace" font-size="10">${data[i].date.slice(5)}</text>`;
+  });
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <text x="4" y="${padT+2}" fill="#8993A4" font-family="IBM Plex Mono, monospace" font-size="10">NT$${fmtInt(max)}</text>
+      <text x="4" y="${H-padB+2}" fill="#8993A4" font-family="IBM Plex Mono, monospace" font-size="10">NT$${fmtInt(min)}</text>
+      <line x1="${padL}" y1="${padT}" x2="${W-padR}" y2="${padT}" stroke="#262E3A" stroke-width="1"/>
+      <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#262E3A" stroke-width="1"/>
+      <defs>
+        <linearGradient id="histFillGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#D4AF6A" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#D4AF6A" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="${areaD}" fill="url(#histFillGrad)" stroke="none"/>
+      <path d="${pathD}" fill="none" stroke="#D4AF6A" stroke-width="2.2" stroke-linejoin="round"/>
+      ${labels}
+    </svg>
+  `;
 }
 
-document.querySelectorAll('.amount-box .quick-amounts button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    $('twdAmount').value = btn.dataset.v;
-    calc();
-  });
-});
-
-['twdAmount','botThbSell','botUsdSell','srTwdBuy','srUsdBuy','ladyDrinkPrice'].forEach(id=>{
-  $(id).addEventListener('input', calc);
-});
-
-document.querySelectorAll('[data-lp]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    $('ladyDrinkPrice').value = btn.dataset.lp;
-    calc();
-  });
-});
-
-$('openSrGreen').addEventListener('click', ()=>{
-  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
-});
-$('openSrOrange').addEventListener('click', ()=>{
-  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
-});
-$('srNoteLinkGreen').addEventListener('click', ()=>{
-  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
-});
-$('srNoteLinkOrange').addEventListener('click', ()=>{
-  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
-});
-
-// ---- Bank of Taiwan live fetch ----
-async function fetchWithTimeout(url, timeoutMs){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
-  try{
-    const res = await fetch(url, {cache:'no-store', signal:controller.signal});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const text = await res.text();
-    if(!text || text.length <= 20) throw new Error('empty response');
-    return text;
-  } finally {
-    clearTimeout(timer);
-  }
+function setStatus(state, msg){
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  dot.className = 'dot' + (state==='ok'?' ok':state==='err'?' err':'');
+  txt.textContent = msg;
 }
 
-async function fetchViaProxies(targetUrl, timeoutMs=9000){
-  const builders = [
-    (u)=> u, // try a direct fetch first, in case the target already allows CORS
-    (u)=> `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    (u)=> `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-    (u)=> `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+async function fetchCsv(){
+  const bust = '_ts=' + Date.now();
+  const sep = CSV_URL.includes('?') ? '&' : '?';
+  const target = CSV_URL + sep + bust;
+
+  const attempts = [
+    () => fetch(target),
+    () => fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(target)),
+    () => fetch('https://corsproxy.io/?url=' + encodeURIComponent(target)),
+    () => fetch('https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(target)),
   ];
-  // race all candidates in parallel instead of trying them one by one — whichever answers first wins
-  const attempts = builders.map(build => fetchWithTimeout(build(targetUrl), timeoutMs));
-  try{
-    return await Promise.any(attempts);
-  }catch(e){
-    throw new Error('all fetch attempts failed');
+
+  let lastErr = null;
+  for(const attempt of attempts){
+    try{
+      const res = await attempt();
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const text = await res.text();
+      if(!text || text.trim() === '') throw new Error('回傳內容是空的');
+      return text;
+    }catch(err){
+      lastErr = err;
+    }
   }
+  throw lastErr || new Error('所有連線方式皆失敗');
 }
 
-async function refreshBotRates(){
-  const btn = $('refreshBot');
-  const statusEl = $('botStatus');
-  btn.disabled = true;
-  statusEl.textContent = '抓取中…';
-  statusEl.className = 'status';
+async function loadData(){
+  const icon = document.getElementById('refreshIcon');
+  icon.classList.add('spin');
+  document.getElementById('errBox').style.display='none';
+  setStatus('loading','載入中…');
   try{
-    const csv = await fetchViaProxies('https://rate.bot.com.tw/xrt/flcsv/0/day');
-    const lines = csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    let usdSell=null, thbSell=null;
-    for(const line of lines){
-      const parts = line.split(',');
-      const code = parts[0].replace(/^\uFEFF/,'').trim();
-      if(code === 'USD' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) usdSell = v;
-      }
-      if(code === 'THB' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) thbSell = v;
-      }
-    }
-    if(usdSell && thbSell){
-      $('botUsdSell').value = usdSell;
-      $('botThbSell').value = thbSell;
-      statusEl.textContent = '即時抓取成功';
-      statusEl.className = 'status ok';
-      const now = new Date();
-      $('botTime').textContent = '更新時間：' + now.toLocaleString('zh-TW', {hour12:false});
-      calc();
-    } else {
-      throw new Error('parse failed');
-    }
-  }catch(e){
-    statusEl.textContent = '抓取失敗，請手動輸入';
-    statusEl.className = 'status err';
+    const text = await fetchCsv();
+    const parsed = Papa.parse(text, {skipEmptyLines:false});
+    render(parsed.data);
+    const now = new Date();
+    setStatus('ok', '已同步 · ' + now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}));
+    document.getElementById('dashboard').style.opacity = 1;
+  }catch(err){
+    setStatus('err','讀取失敗');
+    const box = document.getElementById('errBox');
+    box.style.display='block';
+    box.innerHTML = `<strong>無法讀取試算表資料</strong><br>
+      可能原因：網路暫時無法連線、或該試算表的「發布到網路」設定被關閉／變更。<br>
+      請確認試算表仍保持發布狀態，再按右上角「重新整理」重試。<br>
+      <span style="color:var(--text-faint)">錯誤訊息：${err.message}</span>`;
   }finally{
-    btn.disabled = false;
+    icon.classList.remove('spin');
   }
 }
 
-// ---- Super Rich best-effort live fetch, cross-checked across 2 brands ----
-function extractNumbersNear(text, keyword, min, max, maxCount=8){
-  const results = [];
-  const re = new RegExp(keyword + '[^0-9]{0,60}?(\\d{1,3}\\.\\d{1,4})', 'gi');
-  let m;
-  while((m = re.exec(text)) !== null && results.length < maxCount){
-    const v = parseFloat(m[1]);
-    if(isFinite(v) && v > min && v < max) results.push(v);
+function render(data){
+  let r = 1;
+  twStocks = [];
+  while(safe(data,r,0) !== ''){
+    twStocks.push({
+      name: safe(data,r,0),
+      shares: parseNum(safe(data,r,1)),
+      price: parseNum(safe(data,r,2)),
+      amount: parseNum(safe(data,r,3)),
+      weight: parseNum(safe(data,r,4))
+    });
+    r++;
   }
-  return results;
+  const twTotal = parseNum(safe(data,1,5));
+  const marginRatio = parseNum(safe(data,3,5));
+  
+  renderTwStocks();
+  document.getElementById('twTotal').innerHTML = fmtMoney(twTotal);
+  document.getElementById('marginRatio').innerHTML = (marginRatio*100).toFixed(1) + '%';
+
+  const aTwStock = parseNum(safe(data,1,9));
+  const aCrypto  = parseNum(safe(data,1,10));
+  const aUsStock = parseNum(safe(data,1,11));
+  const aCash    = parseNum(safe(data,1,12));
+  const aForeign = parseNum(safe(data,1,14));
+
+  // ---- 美金：以 USD 為主，反推台幣（不要用試算表既有的台幣換算欄位） ----
+  const usFx = parseNum(safe(data,12,3)) || 32.20;
+  const aUsdInUsd = parseNum(safe(data,2,13));      // 原始 USD 現金部位（例：4000）
+  const aUsd = aUsdInUsd * usFx;                    // 用 USD × 匯率 反推台幣
+
+  document.getElementById('stTwStock').innerHTML = fmtMoney(aTwStock);
+  document.getElementById('stUsStock').innerHTML = fmtMoney(aUsStock);
+  document.getElementById('stCrypto').innerHTML  = fmtMoney(aCrypto);
+  document.getElementById('stCash').innerHTML    = fmtMoney(aCash);
+  document.getElementById('stForeign').innerHTML = fmtMoney(aForeign);
+  
+  // 美金等式排版：USD 原始金額 = 反推台幣
+  const usdCleanStr = fmtUsdDec(aUsdInUsd).replace(/<[^>]*>/g,'');
+  document.getElementById('stUsdMain').innerHTML = `<span style="color:var(--teal);">${usdCleanStr}</span> <span style="font-size:20px;color:var(--text-muted);font-weight:400;font-family:'Inter',sans-serif;">=</span> ${fmtMoney(aUsd)}`;
+  document.getElementById('stUsdSub').innerHTML  = `即時匯率 ${usFx.toFixed(2)}`;
+
+  document.getElementById('cashBankA').innerHTML = fmtMoney(parseNum(safe(data,3,12)));
+  document.getElementById('cashBankB').innerHTML = fmtMoney(parseNum(safe(data,5,12)));
+  document.getElementById('cashBankC').innerHTML = fmtMoney(parseNum(safe(data,7,12)));
+
+  const dStock = parseNum(safe(data,3,9));
+  const dCredit = parseNum(safe(data,3,10));
+  const dParents = parseNum(safe(data,3,11));
+  document.getElementById('debtBody').innerHTML = `
+    <tr><td>股票質借</td><td>${fmtMoney(-Math.abs(dStock))}</td></tr>
+    <tr><td>信貸</td><td>${fmtMoney(-Math.abs(dCredit))}</td></tr>
+    <tr><td>借款（爸）</td><td>${fmtMoney(-Math.abs(dParents))}</td></tr>
+  `;
+
+  let lr = 5;
+  loanList = [];
+  while(safe(data,lr,10) !== ''){
+    loanList.push({
+      start: excelDate(safe(data,lr,8)),
+      due: excelDate(safe(data,lr,9)),
+      dueRaw: safe(data,lr,9),
+      bank: safe(data,lr,10),
+      rate: parseNum(safe(data,lr,11))
+    });
+    lr++;
+  }
+  renderLoans();
+
+  const grossAssets = parseNum(safe(data,12,8));
+  const totalDebt = parseNum(safe(data,12,9));
+  const leverage = parseNum(safe(data,12,10));
+  const netAssets = parseNum(safe(data,14,8));
+  const debtRatio = parseNum(safe(data,14,9));
+  
+  const isNetNeg = netAssets < 0;
+  document.getElementById('netAssets').innerHTML = `<span class="${isNetNeg?'val-neg':''}">${isNetNeg?'-':''}${fmtInt(Math.abs(netAssets))}</span>`;
+  document.getElementById('grossAssets').innerHTML = fmtMoney(grossAssets);
+  document.getElementById('totalDebt').innerHTML = fmtMoney(-Math.abs(totalDebt));
+  document.getElementById('leverage').textContent = leverage.toFixed(3) + 'x';
+  document.getElementById('debtRatio').innerHTML = fmtPct(debtRatio);
+
+  lastNetAssets = netAssets;
+  updateGoalUI();
+
+  recordSnapshot(netAssets, grossAssets, totalDebt);
+  renderChanges();
+  renderHistoryChart();
+
+  const levBarPct = Math.max(0, Math.min((leverage - 1.0) / (3.0 - 1.0), 1));
+  document.getElementById('leverageBarVal').textContent = leverage.toFixed(3) + 'x';
+  document.getElementById('leverageFill').style.width = (levBarPct * 100).toFixed(1) + '%';
+
+  const usDate = excelDate(safe(data,12,0));
+  const usUsd = parseNum(safe(data,12,1));
+  const usTwd = parseNum(safe(data,12,2));
+  const usInvested = parseNum(safe(data,12,4));
+  const usRoi = parseNum(safe(data,14,3));
+  const usProfit = parseNum(safe(data,14,4));
+  document.getElementById('usUpdated').textContent = '更新於 ' + usDate;
+  document.getElementById('usUsd').innerHTML = fmtUsd(usUsd);
+  document.getElementById('usTwd').innerHTML = fmtMoney(usTwd);
+  // 美股即時匯率修正為小數點後兩位
+  document.getElementById('usFx').textContent = usFx.toFixed(2);
+  document.getElementById('usInvested').innerHTML = fmtUsd(usInvested);
+  document.getElementById('usProfit').innerHTML = fmtUsd(usProfit);
+  document.getElementById('usRoi').innerHTML = fmtPct(usRoi);
+
+  let dr = 12, deposits = [];
+  while(safe(data,dr,6) !== ''){
+    deposits.push(parseNum(safe(data,dr,6)));
+    dr++;
+  }
+  document.getElementById('depositTags').innerHTML = deposits.map(d => `<span class="dep-tag">$${fmtInt(d)}</span>`).join('');
+
+  const cryptoDate = excelDate(safe(data,17,0));
+  const cryptoUsd = parseNum(safe(data,17,3));
+  const cryptoTwd = parseNum(safe(data,19,3));
+  const btc = parseNum(safe(data,22,3));
+  document.getElementById('cryptoUpdated').textContent = '更新於 ' + cryptoDate;
+  document.getElementById('cryptoUsd').innerHTML = fmtUsd(cryptoUsd);
+  document.getElementById('cryptoTwd').innerHTML = fmtMoney(cryptoTwd);
+  document.getElementById('btcAmt').textContent = btc.toFixed(6) + ' BTC';
+
+  let wr = 17;
+  cryptoWallets = [];
+  while(safe(data,wr,1) !== ''){
+    cryptoWallets.push({ name: safe(data,wr,1), value: parseNum(safe(data,wr,2)) });
+    wr++;
+  }
+  renderWallets();
+
+  document.getElementById('twUpdated').textContent = '';
+
+  const totalAlloc = aTwStock + aUsStock + aCrypto + aCash || 1;
+  
+  latestDataSummary = {
+    netAssets, grossAssets, totalDebt, leverage, debtRatio, goal: lastGoalValue,
+    goalPct: lastGoalPct, aTwStock, aUsStock, aCrypto, aCash, aUsd, aUsdInUsd, aForeign,
+    dStock, dCredit, dParents, totalAlloc,
+    topTwStocks: [...twStocks].sort((a,b) => b.amount - a.amount).slice(0, 3)
+  };
+
+  drawRing([
+    {label:'台股', value:aTwStock, color:COLORS.tw},
+    {label:'美股', value:aUsStock, color:COLORS.us},
+    {label:'幣圈', value:aCrypto, color:COLORS.crypto},
+    {label:'現金', value:aCash, color:COLORS.cash},
+  ]);
 }
 
-function median(arr){
-  if(!arr.length) return null;
-  const s = [...arr].sort((a,b)=>a-b);
-  const mid = Math.floor(s.length/2);
-  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+function drawRing(items){
+  const total = items.reduce((s,i) => s+i.value, 0) || 1;
+  const r = 60, cx = 80, cy = 80, sw = 16;
+  const circumference = 2*Math.PI*r;
+  let offset = 0;
+  
+  let circles = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1B222D" stroke-width="${sw}"/>`;
+  
+  items.forEach((it) => {
+    const frac = it.value/total;
+    const len = frac*circumference;
+    const pctStr = ((it.value/total)*100).toFixed(1) + '%';
+    
+    circles += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${it.color}" stroke-width="${sw}"
+      stroke-dasharray="${len} ${circumference-len}" stroke-dashoffset="${-offset}"
+      transform="rotate(-90 ${cx} ${cy})" stroke-linecap="butt"
+      class="ring-path"
+      onmouseover="showHover('${it.label}', '${pctStr}', '${it.color}')"
+      onmouseout="resetHover()"/>`;
+    offset += len;
+  });
+
+  circles += `<g id="ringCenterText">
+    <text x="${cx}" y="${cy-4}" text-anchor="middle" fill="#EDEFF3" font-family="Source Serif 4, serif" font-size="16" font-weight="600" id="hoverTitle">配置</text>
+    <text x="${cx}" y="${cy+16}" text-anchor="middle" fill="#8993A4" font-family="IBM Plex Mono, monospace" font-size="11" id="hoverSub">ALLOC</text>
+  </g>`;
+  
+  document.getElementById('ringSvg').innerHTML = circles;
+
+  document.getElementById('legendBox').innerHTML = items.map(it => `
+    <div class="row" onmouseover="showHover('${it.label}', '${((it.value/total)*100).toFixed(1)}%', '${it.color}')" onmouseout="resetHover()">
+      <span class="swatch" style="background:${it.color}"></span>
+      <span>${it.label}</span>
+      <span class="pct">${((it.value/total)*100).toFixed(1)}%</span>
+    </div>
+  `).join('');
 }
 
-async function refreshSrRates(){
-  const btn = $('refreshSr');
-  const statusEl = $('srStatus');
-  btn.disabled = true;
-  statusEl.textContent = '比對兩家來源中…';
-  statusEl.className = 'status';
-
-  const sources = [
-    'https://www.superrichthailand.com/#!/en/exchange',
-    'https://www.superrich1965.com/en/exchange-rate',
-  ];
-
-  const twdCandidates = [];
-  const usdCandidates = [];
-  let sourcesHit = 0;
-
-  // fetch both brands at the same time instead of one after another
-  const settled = await Promise.allSettled(
-    sources.map(src => fetchViaProxies('https://r.jina.ai/' + src, 16000))
-  );
-
-  for(const result of settled){
-    if(result.status !== 'fulfilled') continue;
-    const text = result.value;
-    // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
-    const twdVals = extractNumbersNear(text, 'TWD', 0.75, 1.35);
-    const usdVals = extractNumbersNear(text, 'USD', 20, 50);
-    if(twdVals.length || usdVals.length) sourcesHit++;
-    twdCandidates.push(...twdVals);
-    usdCandidates.push(...usdVals);
+function showHover(label, pct, color){
+  const t = document.getElementById('hoverTitle');
+  const s = document.getElementById('hoverSub');
+  if(t && s){
+    t.textContent = label;
+    t.setAttribute('fill', color);
+    s.textContent = pct;
+    s.setAttribute('font-size', '14');
+    s.setAttribute('fill', '#EDEFF3');
   }
-
-  const twdMedian = median(twdCandidates);
-  const usdMedian = median(usdCandidates);
-  let found = false;
-  if(twdMedian !== null){ $('srTwdBuy').value = twdMedian.toFixed(4); found = true; }
-  if(usdMedian !== null){ $('srUsdBuy').value = usdMedian.toFixed(2); found = true; }
-
-  if(found && sourcesHit >= 2){
-    statusEl.textContent = '已交叉比對 2 個來源';
-    statusEl.className = 'status ok';
-    calc();
-  } else if(found && sourcesHit === 1){
-    statusEl.textContent = '僅 1 個來源成功，建議手動核對';
-    statusEl.className = 'status warn';
-    calc();
-  } else {
-    statusEl.textContent = '自動抓取失敗，請手動輸入';
-    statusEl.className = 'status err';
-  }
-  btn.disabled = false;
 }
 
-$('refreshBot').addEventListener('click', refreshBotRates);
-$('refreshSr').addEventListener('click', refreshSrRates);
+function resetHover(){
+  const t = document.getElementById('hoverTitle');
+  const s = document.getElementById('hoverSub');
+  if(t && s){
+    t.textContent = '配置';
+    t.setAttribute('fill', '#EDEFF3');
+    s.textContent = 'ALLOC';
+    s.setAttribute('font-size', '11');
+    s.setAttribute('fill', '#8993A4');
+  }
+}
 
-calc();
-refreshBotRates();
-refreshSrRates();
+assetHistory = loadHistory();
+renderHistoryChart();
+initGoalInput();
+loadData();
 </script>
 </body>
 </html>
