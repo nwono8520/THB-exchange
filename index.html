@@ -645,22 +645,34 @@ $('srNoteLinkOrange').addEventListener('click', ()=>{
 });
 
 // ---- Bank of Taiwan live fetch ----
-async function fetchViaProxies(targetUrl){
-  const proxies = [
+async function fetchWithTimeout(url, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  try{
+    const res = await fetch(url, {cache:'no-store', signal:controller.signal});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    if(!text || text.length <= 20) throw new Error('empty response');
+    return text;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchViaProxies(targetUrl, timeoutMs=9000){
+  const builders = [
+    (u)=> u, // try a direct fetch first, in case the target already allows CORS
     (u)=> `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
     (u)=> `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
     (u)=> `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
   ];
-  let lastErr;
-  for(const build of proxies){
-    try{
-      const res = await fetch(build(targetUrl), {cache:'no-store'});
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const text = await res.text();
-      if(text && text.length > 20) return text;
-    }catch(e){ lastErr = e; }
+  // race all candidates in parallel instead of trying them one by one — whichever answers first wins
+  const attempts = builders.map(build => fetchWithTimeout(build(targetUrl), timeoutMs));
+  try{
+    return await Promise.any(attempts);
+  }catch(e){
+    throw new Error('all fetch attempts failed');
   }
-  throw lastErr || new Error('all proxies failed');
 }
 
 async function refreshBotRates(){
@@ -739,16 +751,20 @@ async function refreshSrRates(){
   const usdCandidates = [];
   let sourcesHit = 0;
 
-  for(const src of sources){
-    try{
-      const text = await fetchViaProxies('https://r.jina.ai/' + src);
-      // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
-      const twdVals = extractNumbersNear(text, 'TWD', 0.75, 1.35);
-      const usdVals = extractNumbersNear(text, 'USD', 20, 50);
-      if(twdVals.length || usdVals.length) sourcesHit++;
-      twdCandidates.push(...twdVals);
-      usdCandidates.push(...usdVals);
-    }catch(e){ /* this source failed, move on */ }
+  // fetch both brands at the same time instead of one after another
+  const settled = await Promise.allSettled(
+    sources.map(src => fetchViaProxies('https://r.jina.ai/' + src, 12000))
+  );
+
+  for(const result of settled){
+    if(result.status !== 'fulfilled') continue;
+    const text = result.value;
+    // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
+    const twdVals = extractNumbersNear(text, 'TWD', 0.75, 1.35);
+    const usdVals = extractNumbersNear(text, 'USD', 20, 50);
+    if(twdVals.length || usdVals.length) sourcesHit++;
+    twdCandidates.push(...twdVals);
+    usdCandidates.push(...usdVals);
   }
 
   const twdMedian = median(twdCandidates);
