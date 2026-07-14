@@ -420,10 +420,10 @@
     <div class="row">
       <div>
         <div class="name">3. 台幣 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">泰國當地用台幣現鈔換泰銖・自動抓取時會比對綠標與橘標兩家結果 · 多數分店不收台幣或匯率很差，請務必到店現場確認</div>
+        <div class="desc">泰國當地用台幣現鈔換泰銖・近期大約在 0.9~1.1 之間浮動，實際請以自動抓取或官網現場為準・自動抓取時會比對綠標與橘標兩家結果 · 多數分店不收台幣或匯率很差，請務必到店現場確認</div>
       </div>
       <div class="rate-edit">
-        <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="0.90">
+        <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
         <span class="unit">THB/TWD</span>
       </div>
     </div>
@@ -742,8 +742,8 @@ async function refreshSrRates(){
   for(const src of sources){
     try{
       const text = await fetchViaProxies('https://r.jina.ai/' + src);
-      // sane bounds: TWD buying rate ~0.6–1.3 THB per TWD, USD buying rate ~20–50 THB per USD
-      const twdVals = extractNumbersNear(text, 'TWD', 0.6, 1.3);
+      // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
+      const twdVals = extractNumbersNear(text, 'TWD', 0.75, 1.35);
       const usdVals = extractNumbersNear(text, 'USD', 20, 50);
       if(twdVals.length || usdVals.length) sourcesHit++;
       twdCandidates.push(...twdVals);
