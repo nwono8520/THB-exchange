@@ -420,7 +420,7 @@
     <div class="row">
       <div>
         <div class="name">3. 台幣 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">泰國當地用台幣現鈔換泰銖・大約在 0.9~1.1 之間浮動，實際請以自動抓取或官網現場為準・自動抓取時會比對綠標與橘標兩家結果 · 這裡僅為試算 · 請務必到店以現場為準</div>
+        <div class="desc">泰國當地用台幣現鈔換泰銖・近期大約在 0.9~1.1 之間浮動・自動抓取時常錯誤・可手動輸入試算較為準確・實際換匯還請以官網、現場為準・多數分店不收台幣或匯率很差，請務必到店現場確認</div>
       </div>
       <div class="rate-edit">
         <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
@@ -753,7 +753,7 @@ async function refreshSrRates(){
 
   // fetch both brands at the same time instead of one after another
   const settled = await Promise.allSettled(
-    sources.map(src => fetchViaProxies('https://r.jina.ai/' + src, 12000))
+    sources.map(src => fetchViaProxies('https://r.jina.ai/' + src, 16000))
   );
 
   for(const result of settled){
