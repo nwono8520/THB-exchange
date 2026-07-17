@@ -717,13 +717,16 @@ async function refreshBotRates(){
 }
 
 // ---- Super Rich best-effort live fetch, cross-checked across 2 brands ----
-function extractNumbersNear(text, keyword, min, max, maxCount=8){
+function extractNumbersNear(text, keywords, min, max, maxCount=8){
   const results = [];
-  const re = new RegExp(keyword + '[^0-9]{0,60}?(\\d{1,3}\\.\\d{1,4})', 'gi');
-  let m;
-  while((m = re.exec(text)) !== null && results.length < maxCount){
-    const v = parseFloat(m[1]);
-    if(isFinite(v) && v > min && v < max) results.push(v);
+  const anchors = Array.isArray(keywords) ? keywords : [keywords];
+  for(const keyword of anchors){
+    const re = new RegExp(keyword + '[^0-9]{0,150}?(\\d{1,3}\\.\\d{1,4})', 'gi');
+    let m;
+    while((m = re.exec(text)) !== null && results.length < maxCount){
+      const v = parseFloat(m[1]);
+      if(isFinite(v) && v > min && v < max) results.push(v);
+    }
   }
   return results;
 }
@@ -760,8 +763,8 @@ async function refreshSrRates(){
     if(result.status !== 'fulfilled') continue;
     const text = result.value;
     // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
-    const twdVals = extractNumbersNear(text, 'TWD', 0.75, 1.35);
-    const usdVals = extractNumbersNear(text, 'USD', 20, 50);
+    const twdVals = extractNumbersNear(text, ['TWD', 'Taiwan'], 0.75, 1.35);
+    const usdVals = extractNumbersNear(text, ['USD', 'United States'], 20, 50);
     if(twdVals.length || usdVals.length) sourcesHit++;
     twdCandidates.push(...twdVals);
     usdCandidates.push(...usdVals);
