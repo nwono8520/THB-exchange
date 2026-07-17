@@ -472,7 +472,9 @@
     <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:4px;">🟢 Super Rich Thailand 原始回傳：</div>
     <textarea id="debugGreen" readonly style="width:100%; height:120px; font-size:10px; font-family:monospace; border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--ink-soft); margin-bottom:10px;"></textarea>
     <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:4px;">🟠 Super Rich 1965 原始回傳：</div>
-    <textarea id="debugOrange" readonly style="width:100%; height:120px; font-size:10px; font-family:monospace; border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--ink-soft);"></textarea>
+    <textarea id="debugOrange" readonly style="width:100%; height:120px; font-size:10px; font-family:monospace; border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--ink-soft); margin-bottom:10px;"></textarea>
+    <div style="font-size:11px; font-weight:700; color:var(--ink-soft); margin-bottom:4px;">🟢 Super Rich Thailand（TWD 專屬頁）原始回傳：</div>
+    <textarea id="debugGreenTwd" readonly style="width:100%; height:120px; font-size:10px; font-family:monospace; border:1px solid var(--line); border-radius:8px; padding:8px; color:var(--ink-soft);"></textarea>
   </div>
 
   <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
@@ -799,11 +801,17 @@ async function refreshSrRates(){
     { short:'綠標', full:'Super Rich Thailand', cls:'is-green', url:'https://www.superrichthailand.com/#!/en/exchange' },
     { short:'橘標', full:'Super Rich 1965',      cls:'is-orange', url:'https://www.superrich1965.com/en/exchange-rate' },
   ];
+  // exploratory third source — TWD's own currency detail page. Not wired into the calculation yet
+  // because it's unclear whether it shows the buying or selling rate; shown in the debug panel only for now.
+  const explorePromise = fetchViaProxies('https://r.jina.ai/https://www.superrichthailand.com/#!/en/currency#TWD', 16000)
+    .then(text => { $('debugGreenTwd').value = `[共 ${text.length} 字] ` + text.slice(0, 15000); })
+    .catch(e => { $('debugGreenTwd').value = '[抓取失敗] ' + (e && e.message ? e.message : String(e)); });
 
   // fetch both brands at the same time instead of one after another
   const settled = await Promise.allSettled(
     sources.map(s => fetchViaProxies('https://r.jina.ai/' + s.url, 16000))
   );
+  await explorePromise;
 
   const debugIds = ['debugGreen', 'debugOrange'];
   const twdBySource = []; // { short, full, cls, value }
