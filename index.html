@@ -817,7 +817,7 @@ async function refreshSrRates(){
       return;
     }
     const text = result.value;
-    if(debugEl) debugEl.value = text.slice(0, 4000);
+    if(debugEl) debugEl.value = `[共 ${text.length} 字] ` + text.slice(0, 15000);
 
     const twdAnchors = ['TWD', 'Taiwan'];
     const usdAnchors = ['USD', 'United States'];
