@@ -169,6 +169,18 @@
   .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
   .refresh-btn.orange:hover{ background:var(--orange-bg); }
 
+  .source-note{
+    font-size:11px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .source-note.is-green{ background:var(--good-bg); color:var(--green-label); }
+  .source-note.is-orange{ background:var(--orange-bg); color:var(--orange); }
+
   .refresh-btn{
     border:1px solid var(--line);
     background:#fff;
@@ -427,6 +439,9 @@
         <span class="unit">THB/TWD</span>
       </div>
     </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="source-note" id="srTwdSourceNote" style="display:none;"></div>
+    </div>
   </div>
 
   <div class="rate-card">
@@ -439,6 +454,9 @@
         <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
         <span class="unit">THB/USD</span>
       </div>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="source-note" id="srUsdSourceNote" style="display:none;"></div>
     </div>
   </div>
 
@@ -774,22 +792,25 @@ async function refreshSrRates(){
   btn.disabled = true;
   statusEl.textContent = '比對兩家來源中…';
   statusEl.className = 'status';
+  $('srTwdSourceNote').style.display = 'none';
+  $('srUsdSourceNote').style.display = 'none';
 
   const sources = [
-    'https://www.superrichthailand.com/#!/en/exchange',
-    'https://www.superrich1965.com/en/exchange-rate',
+    { short:'綠標', full:'Super Rich Thailand', cls:'is-green', url:'https://www.superrichthailand.com/#!/en/exchange' },
+    { short:'橘標', full:'Super Rich 1965',      cls:'is-orange', url:'https://www.superrich1965.com/en/exchange-rate' },
   ];
-
-  const twdCandidates = [];
-  const usdCandidates = [];
 
   // fetch both brands at the same time instead of one after another
   const settled = await Promise.allSettled(
-    sources.map(src => fetchViaProxies('https://r.jina.ai/' + src, 16000))
+    sources.map(s => fetchViaProxies('https://r.jina.ai/' + s.url, 16000))
   );
 
   const debugIds = ['debugGreen', 'debugOrange'];
+  const twdBySource = []; // { short, full, cls, value }
+  const usdBySource = [];
+
   settled.forEach((result, i) => {
+    const src = sources[i];
     const debugEl = $(debugIds[i]);
     if(result.status !== 'fulfilled'){
       if(debugEl) debugEl.value = '[抓取失敗] ' + (result.reason && result.reason.message ? result.reason.message : String(result.reason));
@@ -797,32 +818,50 @@ async function refreshSrRates(){
     }
     const text = result.value;
     if(debugEl) debugEl.value = text.slice(0, 4000);
-    // sane bounds widened: TWD/THB has floated roughly 0.85–1.20 over recent months, keep some margin either side
+
     const twdAnchors = ['TWD', 'Taiwan'];
     const usdAnchors = ['USD', 'United States'];
-    twdCandidates.push(
-      ...extractFromRow(text, twdAnchors, 0.75, 1.35),
-      ...extractNumbersNear(text, twdAnchors, 0.75, 1.35)
-    );
-    usdCandidates.push(
-      ...extractFromRow(text, usdAnchors, 20, 50),
-      ...extractNumbersNear(text, usdAnchors, 20, 50)
-    );
+    const twdVals = [...extractFromRow(text, twdAnchors, 0.75, 1.35), ...extractNumbersNear(text, twdAnchors, 0.75, 1.35)];
+    const usdVals = [...extractFromRow(text, usdAnchors, 20, 50), ...extractNumbersNear(text, usdAnchors, 20, 50)];
+    const twdVal = median(twdVals);
+    const usdVal = median(usdVals);
+    if(twdVal !== null) twdBySource.push({ ...src, value: twdVal });
+    if(usdVal !== null) usdBySource.push({ ...src, value: usdVal });
   });
 
-  const twdMedian = median(twdCandidates);
-  const usdMedian = median(usdCandidates);
-  if(twdMedian !== null) $('srTwdBuy').value = twdMedian.toFixed(4);
-  if(usdMedian !== null) $('srUsdBuy').value = usdMedian.toFixed(2);
+  // pick the more favorable (higher) buying rate between the two brands
+  function pickBest(arr){
+    if(!arr.length) return null;
+    return arr.reduce((a,b) => (b.value > a.value ? b : a));
+  }
+
+  const twdBest = pickBest(twdBySource);
+  const usdBest = pickBest(usdBySource);
+
+  function applyNote(noteEl, best, arr, digits){
+    if(!best){ noteEl.style.display = 'none'; return; }
+    noteEl.className = 'source-note ' + best.cls;
+    noteEl.style.display = 'inline-flex';
+    if(arr.length >= 2){
+      noteEl.textContent = `抓取 ${best.short} ${best.full} 匯率較佳（${best.value.toFixed(digits)}）`;
+    } else {
+      noteEl.textContent = `僅 ${best.short} ${best.full} 抓取成功（${best.value.toFixed(digits)}）`;
+    }
+  }
+
+  if(twdBest !== null){ $('srTwdBuy').value = twdBest.value.toFixed(4); }
+  if(usdBest !== null){ $('srUsdBuy').value = usdBest.value.toFixed(2); }
+  applyNote($('srTwdSourceNote'), twdBest, twdBySource, 3);
+  applyNote($('srUsdSourceNote'), usdBest, usdBySource, 2);
 
   // report each field's outcome separately — a partial success should never look like a full success
-  if(twdMedian !== null && usdMedian !== null){
+  if(twdBest !== null && usdBest !== null){
     statusEl.textContent = '台幣、美金皆已更新';
     statusEl.className = 'status ok';
-  } else if(twdMedian !== null && usdMedian === null){
+  } else if(twdBest !== null && usdBest === null){
     statusEl.textContent = '台幣已更新，美金抓取失敗';
     statusEl.className = 'status warn';
-  } else if(twdMedian === null && usdMedian !== null){
+  } else if(twdBest === null && usdBest !== null){
     statusEl.textContent = '美金已更新，台幣抓取失敗，請手動輸入';
     statusEl.className = 'status warn';
   } else {
