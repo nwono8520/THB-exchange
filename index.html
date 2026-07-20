@@ -168,6 +168,28 @@
 
   .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
   .refresh-btn.orange:hover{ background:var(--orange-bg); }
+  .action-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    width:100%;
+    background:linear-gradient(135deg, var(--navy-2), var(--navy));
+    color:#fdf9ee;
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px 16px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(18,35,58,0.22);
+    letter-spacing:0.2px;
+  }
+  .action-btn:hover{ box-shadow:0 8px 20px rgba(18,35,58,0.3); }
+  .action-btn:active{ transform:scale(0.98); }
+  .action-btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+
   .refresh-btn.green{ border-color:rgba(47,138,91,0.4); color:var(--green-label); }
   .refresh-btn.green:hover{ background:var(--good-bg); }
 
@@ -437,8 +459,8 @@
     </div>
   </div>
 
-  <div style="text-align:right; margin:-2px 0 4px;">
-    <button class="refresh-btn" id="refreshBot">↻ 重新抓取台銀即時匯率</button>
+  <div style="margin:6px 0 4px;">
+    <button class="action-btn" id="refreshBot">↻ 重新抓取台銀即時匯率</button>
   </div>
   <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
 
@@ -487,8 +509,8 @@
     <button class="refresh-btn green" id="openSrGreen">↗ Super Rich Thailand 官網</button>
     <button class="refresh-btn orange" id="openSrOrange">↗ Super Rich 1965 官網</button>
   </div>
-  <div style="text-align:right; margin:8px 0 14px;">
-    <button class="refresh-btn" id="refreshSr">↻ 重新比對兩家匯率</button>
+  <div style="margin:8px 0 14px;">
+    <button class="action-btn" id="refreshSr">↻ 重新抓取兩家匯率</button>
   </div>
 
   <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
