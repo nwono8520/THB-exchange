@@ -20,7 +20,8 @@
     --bad-bg:#fbeae8;
     --orange:#e07b1f;
     --orange-bg:#fdf1e4;
-    --green-label:#2f8a5b;
+    --green-label:#1f7a8c;
+    --green-bg:#e5f2f4;
     --ink:#1e2430;
     --ink-soft:#6b7280;
     --line:#e7e1d3;
@@ -137,34 +138,33 @@
     letter-spacing:0.8px;
     margin:26px 0 10px;
     display:flex;
+    flex-wrap:wrap;
     align-items:center;
     justify-content:space-between;
+    gap:4px 10px;
   }
   .section-title .status{
-    font-weight:500;
+    font-weight:700;
     text-transform:none;
     letter-spacing:0;
-    font-size:11.5px;
-  }
-  .status.ok{ color:var(--good); }
-  .status.err{ color:var(--bad); }
-  .status.warn{ color:var(--orange); }
-
-  .source-badges{ display:flex; gap:6px; margin:-4px 0 10px; flex-wrap:wrap; }
-  .source-badge{
     font-size:10.5px;
-    font-weight:700;
-    padding:3px 9px 3px 7px;
+    padding:3px 9px;
     border-radius:20px;
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
+    background:var(--cream);
   }
-  .source-badge .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
-  .source-badge.green{ background:var(--good-bg); color:var(--green-label); }
-  .source-badge.green .dot{ background:var(--green-label); }
-  .source-badge.orange{ background:var(--orange-bg); color:var(--orange); }
-  .source-badge.orange .dot{ background:var(--orange); }
+  .status.ok{ color:var(--good); background:var(--good-bg); }
+  .status.err{ color:var(--bad); background:var(--bad-bg); }
+  .status.warn{ color:var(--orange); background:var(--orange-bg); }
+
+  .combo-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .combo-row{ padding:14px 16px; }
+  .combo-row + .combo-row{ border-top:1px solid var(--line); }
 
   .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
   .refresh-btn.orange:hover{ background:var(--orange-bg); }
@@ -191,7 +191,7 @@
   .action-btn:disabled{ opacity:0.6; cursor:default; transform:none; }
 
   .refresh-btn.green{ border-color:rgba(47,138,91,0.4); color:var(--green-label); }
-  .refresh-btn.green:hover{ background:var(--good-bg); }
+  .refresh-btn.green:hover{ background:var(--green-bg); }
 
   .site-links{
     display:flex;
@@ -221,7 +221,7 @@
     align-items:center;
     gap:5px;
   }
-  .source-note.is-green{ background:var(--good-bg); color:var(--green-label); }
+  .source-note.is-green{ background:var(--green-bg); color:var(--green-label); }
   .source-note.is-orange{ background:var(--orange-bg); color:var(--orange); }
 
   .refresh-btn{
@@ -246,22 +246,29 @@
     margin-bottom:10px;
     background:#fff;
   }
-  .rate-card .row{
+  .rate-card .row,
+  .combo-row .row{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:10px;
   }
-  .rate-card .row > div:first-child{ flex:1 1 auto; min-width:0; }
-  .rate-card .rate-edit{ flex:none; }
-  .rate-card .name{ font-size:13.5px; font-weight:600; }
-  .rate-card .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .rate-card .rate-edit{
+  .rate-card .row > div:first-child,
+  .combo-row .row > div:first-child{ flex:1 1 auto; min-width:0; }
+  .rate-card .rate-edit,
+  .combo-row .rate-edit{ flex:none; }
+  .rate-card .name,
+  .combo-row .name{ font-size:13.5px; font-weight:600; }
+  .rate-card .desc,
+  .combo-row .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .rate-card .rate-edit,
+  .combo-row .rate-edit{
     display:flex;
     align-items:center;
     gap:4px;
   }
-  .rate-card input.rate-num{
+  .rate-card input.rate-num,
+  .combo-row input.rate-num{
     width:78px;
     text-align:right;
     border:1px solid var(--line);
@@ -272,7 +279,8 @@
     color:var(--navy);
     font-family:'Fraunces', serif;
   }
-  .rate-card .unit{ font-size:11px; color:var(--ink-soft); }
+  .rate-card .unit,
+  .combo-row .unit{ font-size:11px; color:var(--ink-soft); }
 
   .path-card{
     border-radius:var(--radius);
@@ -433,28 +441,29 @@
     <span id="botStatus" class="status">尚未抓取</span>
   </div>
 
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">1. 台幣 → 泰銖（現金賣出）</div>
-        <div class="desc">跟銀行直接買泰銖現鈔</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="botThbSell" type="number" step="0.0001" value="1.0229">
-        <span class="unit">TWD/THB</span>
+  <div class="combo-card">
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">1. 台幣 → 泰銖</div>
+          <div class="desc">現金賣出・跟銀行直接買泰銖現鈔</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="botThbSell" type="number" step="0.0001" value="1.0229">
+          <span class="unit">TWD/THB</span>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">2. 台幣 → 美金（現金賣出）</div>
-        <div class="desc">先在台灣換成美金現鈔</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="botUsdSell" type="number" step="0.001" value="32.48">
-        <span class="unit">TWD/USD</span>
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">2. 台幣 → 美金</div>
+          <div class="desc">現金賣出・先在台灣換成美金現鈔</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="botUsdSell" type="number" step="0.001" value="32.48">
+          <span class="unit">TWD/USD</span>
+        </div>
       </div>
     </div>
   </div>
@@ -465,43 +474,36 @@
   <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
 
   <div class="section-title">
-    <span>② 泰國 Super Rich（buying rate・雙來源比對）</span>
+    <span>② 泰國 Super Rich（買入匯率）</span>
     <span id="srStatus" class="status">請確認/手動輸入</span>
   </div>
-  <div class="source-badges">
-    <span class="source-badge green"><span class="dot"></span>Super Rich Thailand（綠標）</span>
-    <span class="source-badge orange"><span class="dot"></span>Super Rich 1965（橘標）</span>
-  </div>
 
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">3. 台幣 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">泰國當地用台幣現鈔換泰銖・近期大約在 0.9~1.1 之間浮動・自動抓取時常錯誤・可手動輸入試算較為準確・實際換匯還請以官網、現場為準・多數分店不收台幣或匯率很差，請務必到店現場確認</div>
+  <div class="combo-card">
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">3. 台幣 → 泰銖</div>
+          <div class="desc">近期約在 0.9~1.1 浮動・多數分店不收台幣，請以現場為準</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
+          <span class="unit">THB/TWD</span>
+        </div>
       </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
-        <span class="unit">THB/TWD</span>
-      </div>
+      <div class="source-note" id="srTwdSourceNote" style="display:none; margin-top:8px;"></div>
     </div>
-    <div class="row" style="margin-top:8px;">
-      <div class="source-note" id="srTwdSourceNote" style="display:none;"></div>
-    </div>
-  </div>
-
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">4. 美金 → 泰銖（Super Rich 買入）</div>
-        <div class="desc">在泰國用美金現鈔換泰銖・同樣會比對兩家來源</div>
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">4. 美金 → 泰銖</div>
+          <div class="desc">在泰國用美金現鈔換泰銖</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
+          <span class="unit">THB/USD</span>
+        </div>
       </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
-        <span class="unit">THB/USD</span>
-      </div>
-    </div>
-    <div class="row" style="margin-top:8px;">
-      <div class="source-note" id="srUsdSourceNote" style="display:none;"></div>
+      <div class="source-note" id="srUsdSourceNote" style="display:none; margin-top:8px;"></div>
     </div>
   </div>
 
@@ -571,7 +573,7 @@
   </div>
 
   <div class="note">
-    説明：①②會嘗試即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金匯率）。③④會同時嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand（綠標）</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965（橘標）</span> 兩家匯率取中位數，因兩者網站皆為前端動態載入、且台幣非常態掛牌幣別，無法保證每次都成功，建議出發前以官網或門市現場公告為準，並手動核對上方數字。所有結果僅供參考，實際交易以銀行/兌換點當下匯率及手續費為準。
+    ①②即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金）。③④嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965</span> 兩家匯率，因網站為前端動態載入，無法保證每次成功，出發前請以官網或門市現場為準。所有結果僅供參考，實際交易以現場匯率及手續費為準。
   </div>
 </div>
 
