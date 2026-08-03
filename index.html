@@ -7,910 +7,910 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --navy:#12233a;
-    --navy-2:#1b3352;
-    --cream:#faf6ec;
-    --card:#ffffff;
-    --gold:#c79a3a;
-    --gold-deep:#a67c1f;
-    --good:#1f7a5c;
-    --good-bg:#e6f4ee;
-    --bad:#b3453b;
-    --bad-bg:#fbeae8;
-    --orange:#e07b1f;
-    --orange-bg:#fdf1e4;
-    --green-label:#1f7a8c;
-    --green-bg:#e5f2f4;
-    --ink:#1e2430;
-    --ink-soft:#6b7280;
-    --line:#e7e1d3;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;}
-  html{ -webkit-text-size-adjust:100%; }
-  body{
-    margin:0;
-    min-height:100vh;
-    background:
-      radial-gradient(circle at 12% 8%, rgba(199,154,58,0.12), transparent 40%),
-      radial-gradient(circle at 88% 90%, rgba(18,35,58,0.10), transparent 45%),
-      var(--cream);
-    font-family:'Noto Sans TC', sans-serif;
-    color:var(--ink);
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:36px 20px;
-  }
+  :root{
+    --navy:#12233a;
+    --navy-2:#1b3352;
+    --cream:#faf6ec;
+    --card:#ffffff;
+    --gold:#c79a3a;
+    --gold-deep:#a67c1f;
+    --good:#1f7a5c;
+    --good-bg:#e6f4ee;
+    --bad:#b3453b;
+    --bad-bg:#fbeae8;
+    --orange:#e07b1f;
+    --orange-bg:#fdf1e4;
+    --green-label:#1f7a8c;
+    --green-bg:#e5f2f4;
+    --ink:#1e2430;
+    --ink-soft:#6b7280;
+    --line:#e7e1d3;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(199,154,58,0.12), transparent 40%),
+      radial-gradient(circle at 88% 90%, rgba(18,35,58,0.10), transparent 45%),
+      var(--cream);
+    font-family:'Noto Sans TC', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:36px 20px;
+  }
 
-  .panel{
-    width:100%;
-    max-width:440px;
-    background:var(--card);
-    border-radius:22px;
-    box-shadow:0 24px 60px rgba(18,35,58,0.14), 0 2px 8px rgba(18,35,58,0.06);
-    padding:28px 24px 40px;
-    position:relative;
-  }
+  .panel{
+    width:100%;
+    max-width:440px;
+    background:var(--card);
+    border-radius:22px;
+    box-shadow:0 24px 60px rgba(18,35,58,0.14), 0 2px 8px rgba(18,35,58,0.06);
+    padding:28px 24px 40px;
+    position:relative;
+  }
 
-  @media (max-width:520px){
-    body{ padding:0; }
-    .panel{ border-radius:0; box-shadow:none; max-width:100%; min-height:100vh; padding:24px 18px 48px; }
-  }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:4px;
-  }
-  .brand .flag{
-    width:30px;height:30px;border-radius:50%;
-    background:conic-gradient(from 180deg, #b3453b 0 25%, #faf6ec 25% 50%, #12233a 50% 75%, #c79a3a 75% 100%);
-    flex:none;
-  }
-  h1{
-    font-family:'Fraunces', serif;
-    font-size:23px;
-    font-weight:700;
-    margin:0;
-    color:var(--navy);
-    letter-spacing:0.2px;
-  }
-  .sub{
-    color:var(--ink-soft);
-    font-size:12.5px;
-    margin:4px 0 24px;
-  }
+  @media (max-width:520px){
+    body{ padding:0; }
+    .panel{ border-radius:0; box-shadow:none; max-width:100%; min-height:100vh; padding:24px 18px 48px; }
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .brand .flag{
+    width:30px;height:30px;border-radius:50%;
+    background:conic-gradient(from 180deg, #b3453b 0 25%, #faf6ec 25% 50%, #12233a 50% 75%, #c79a3a 75% 100%);
+    flex:none;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-size:23px;
+    font-weight:700;
+    margin:0;
+    color:var(--navy);
+    letter-spacing:0.2px;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:12.5px;
+    margin:4px 0 24px;
+  }
 
-  .amount-box{
-    background:var(--navy);
-    background-image:linear-gradient(135deg, var(--navy), var(--navy-2));
-    border-radius:var(--radius);
-    padding:18px 18px 16px;
-    margin-bottom:22px;
-    color:#f2ede0;
-  }
-  .amount-box label{
-    font-size:12px;
-    opacity:0.75;
-    letter-spacing:0.5px;
-  }
-  .amount-input-row{
-    display:flex;
-    align-items:baseline;
-    gap:8px;
-    margin-top:6px;
-  }
-  .amount-input-row span{ font-size:18px; opacity:0.8; font-weight:600;}
-  .amount-input-row input{
-    flex:1;
-    background:transparent;
-    border:none;
-    border-bottom:2px solid rgba(242,237,224,0.35);
-    color:#fff;
-    font-family:'Fraunces', serif;
-    font-size:34px;
-    font-weight:700;
-    padding:2px 0;
-    outline:none;
-    width:100%;
-    min-width:0;
-  }
-  .amount-input-row input:focus{ border-bottom-color:var(--gold); }
-  .quick-amounts{ display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
-  .quick-amounts button{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.18);
-    color:#f2ede0;
-    border-radius:20px;
-    padding:5px 12px;
-    font-size:12px;
-    cursor:pointer;
-  }
-  .quick-amounts button:hover{ background:rgba(255,255,255,0.18); }
+  .amount-box{
+    background:var(--navy);
+    background-image:linear-gradient(135deg, var(--navy), var(--navy-2));
+    border-radius:var(--radius);
+    padding:18px 18px 16px;
+    margin-bottom:22px;
+    color:#f2ede0;
+  }
+  .amount-box label{
+    font-size:12px;
+    opacity:0.75;
+    letter-spacing:0.5px;
+  }
+  .amount-input-row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin-top:6px;
+  }
+  .amount-input-row span{ font-size:18px; opacity:0.8; font-weight:600;}
+  .amount-input-row input{
+    flex:1;
+    background:transparent;
+    border:none;
+    border-bottom:2px solid rgba(242,237,224,0.35);
+    color:#fff;
+    font-family:'Fraunces', serif;
+    font-size:34px;
+    font-weight:700;
+    padding:2px 0;
+    outline:none;
+    width:100%;
+    min-width:0;
+  }
+  .amount-input-row input:focus{ border-bottom-color:var(--gold); }
+  .quick-amounts{ display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;}
+  .quick-amounts button{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.18);
+    color:#f2ede0;
+    border-radius:20px;
+    padding:5px 12px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .quick-amounts button:hover{ background:rgba(255,255,255,0.18); }
 
-  .section-title{
-    font-size:12.5px;
-    font-weight:700;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-    letter-spacing:0.8px;
-    margin:26px 0 10px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    justify-content:space-between;
-    gap:4px 10px;
-  }
-  .section-title .status{
-    font-weight:700;
-    text-transform:none;
-    letter-spacing:0;
-    font-size:10.5px;
-    padding:3px 9px;
-    border-radius:20px;
-    background:var(--cream);
-  }
-  .status.ok{ color:var(--good); background:var(--good-bg); }
-  .status.err{ color:var(--bad); background:var(--bad-bg); }
-  .status.warn{ color:var(--orange); background:var(--orange-bg); }
+  .section-title{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    margin:26px 0 10px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:4px 10px;
+  }
+  .section-title .status{
+    font-weight:700;
+    text-transform:none;
+    letter-spacing:0;
+    font-size:10.5px;
+    padding:3px 9px;
+    border-radius:20px;
+    background:var(--cream);
+  }
+  .status.ok{ color:var(--good); background:var(--good-bg); }
+  .status.err{ color:var(--bad); background:var(--bad-bg); }
+  .status.warn{ color:var(--orange); background:var(--orange-bg); }
 
-  .combo-card{
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    background:#fff;
-    margin-bottom:14px;
-    overflow:hidden;
-  }
-  .combo-row{ padding:14px 16px; }
-  .combo-row + .combo-row{ border-top:1px solid var(--line); }
+  .combo-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:#fff;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .combo-row{ padding:14px 16px; }
+  .combo-row + .combo-row{ border-top:1px solid var(--line); }
 
-  .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
-  .refresh-btn.orange:hover{ background:var(--orange-bg); }
-  .action-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:7px;
-    width:100%;
-    background:linear-gradient(135deg, var(--navy-2), var(--navy));
-    color:#fdf9ee;
-    font-family:'Noto Sans TC', sans-serif;
-    font-weight:700;
-    font-size:13.5px;
-    padding:12px 16px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-    box-shadow:0 6px 16px rgba(18,35,58,0.22);
-    letter-spacing:0.2px;
-  }
-  .action-btn:hover{ box-shadow:0 8px 20px rgba(18,35,58,0.3); }
-  .action-btn:active{ transform:scale(0.98); }
-  .action-btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+  .refresh-btn.orange{ border-color:rgba(224,123,31,0.4); color:var(--orange); }
+  .refresh-btn.orange:hover{ background:var(--orange-bg); }
+  .action-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    width:100%;
+    background:linear-gradient(135deg, var(--navy-2), var(--navy));
+    color:#fdf9ee;
+    font-family:'Noto Sans TC', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px 16px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(18,35,58,0.22);
+    letter-spacing:0.2px;
+  }
+  .action-btn:hover{ box-shadow:0 8px 20px rgba(18,35,58,0.3); }
+  .action-btn:active{ transform:scale(0.98); }
+  .action-btn:disabled{ opacity:0.6; cursor:default; transform:none; }
 
-  .refresh-btn.green{ border-color:rgba(47,138,91,0.4); color:var(--green-label); }
-  .refresh-btn.green:hover{ background:var(--green-bg); }
+  .refresh-btn.green{ border-color:rgba(47,138,91,0.4); color:var(--green-label); }
+  .refresh-btn.green:hover{ background:var(--green-bg); }
 
-  .site-links{
-    display:flex;
-    gap:8px;
-    margin:4px 0 0;
-  }
-  .site-links .refresh-btn{
-    flex:1 1 0;
-    text-align:center;
-    justify-content:center;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    padding:7px 6px;
-  }
-  @media (max-width:380px){
-    .site-links{ flex-direction:column; }
-    .site-links .refresh-btn{ white-space:normal; }
-  }
+  .site-links{
+    display:flex;
+    gap:8px;
+    margin:4px 0 0;
+  }
+  .site-links .refresh-btn{
+    flex:1 1 0;
+    text-align:center;
+    justify-content:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:7px 6px;
+  }
+  @media (max-width:380px){
+    .site-links{ flex-direction:column; }
+    .site-links .refresh-btn{ white-space:normal; }
+  }
 
-  .source-note{
-    font-size:11px;
-    font-weight:600;
-    padding:4px 10px;
-    border-radius:8px;
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-  }
-  .source-note.is-green{ background:var(--green-bg); color:var(--green-label); }
-  .source-note.is-orange{ background:var(--orange-bg); color:var(--orange); }
+  .source-note{
+    font-size:11px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+  .source-note.is-green{ background:var(--green-bg); color:var(--green-label); }
+  .source-note.is-orange{ background:var(--orange-bg); color:var(--orange); }
 
-  .refresh-btn{
-    border:1px solid var(--line);
-    background:#fff;
-    color:var(--navy);
-    border-radius:8px;
-    font-size:11.5px;
-    padding:3px 9px;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:4px;
-  }
-  .refresh-btn:hover{ background:var(--cream); }
-  .refresh-btn:disabled{ opacity:0.5; cursor:default; }
+  .refresh-btn{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--navy);
+    border-radius:8px;
+    font-size:11.5px;
+    padding:3px 9px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+  }
+  .refresh-btn:hover{ background:var(--cream); }
+  .refresh-btn:disabled{ opacity:0.5; cursor:default; }
 
-  .rate-card{
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:14px 16px;
-    margin-bottom:10px;
-    background:#fff;
-  }
-  .rate-card .row,
-  .combo-row .row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-  }
-  .rate-card .row > div:first-child,
-  .combo-row .row > div:first-child{ flex:1 1 auto; min-width:0; }
-  .rate-card .rate-edit,
-  .combo-row .rate-edit{ flex:none; }
-  .rate-card .name,
-  .combo-row .name{ font-size:13.5px; font-weight:600; }
-  .rate-card .desc,
-  .combo-row .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .rate-card .rate-edit,
-  .combo-row .rate-edit{
-    display:flex;
-    align-items:center;
-    gap:4px;
-  }
-  .rate-card input.rate-num,
-  .combo-row input.rate-num{
-    width:78px;
-    text-align:right;
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:6px 8px;
-    font-size:14px;
-    font-weight:700;
-    color:var(--navy);
-    font-family:'Fraunces', serif;
-  }
-  .rate-card .unit,
-  .combo-row .unit{ font-size:11px; color:var(--ink-soft); }
+  .rate-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:10px;
+    background:#fff;
+  }
+  .rate-card .row,
+  .combo-row .row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .rate-card .row > div:first-child,
+  .combo-row .row > div:first-child{ flex:1 1 auto; min-width:0; }
+  .rate-card .rate-edit,
+  .combo-row .rate-edit{ flex:none; }
+  .rate-card .name,
+  .combo-row .name{ font-size:13.5px; font-weight:600; }
+  .rate-card .desc,
+  .combo-row .desc{ font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .rate-card .rate-edit,
+  .combo-row .rate-edit{
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .rate-card input.rate-num,
+  .combo-row input.rate-num{
+    width:78px;
+    text-align:right;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--navy);
+    font-family:'Fraunces', serif;
+  }
+  .rate-card .unit,
+  .combo-row .unit{ font-size:11px; color:var(--ink-soft); }
 
-  .path-card{
-    border-radius:var(--radius);
-    padding:15px 16px;
-    margin-bottom:10px;
-    background:#fff;
-    border:1px solid var(--line);
-    position:relative;
-    overflow:hidden;
-  }
-  .path-card.best{ border-color:var(--good); background:var(--good-bg); }
-  .path-card.worst{ border-color:var(--bad); background:var(--bad-bg); }
-  .path-card .tag{
-    position:absolute;
-    top:0; right:0;
-    font-size:10.5px;
-    font-weight:700;
-    padding:3px 10px;
-    border-bottom-left-radius:10px;
-    color:#fff;
-    letter-spacing:0.3px;
-  }
-  .path-card.best .tag{ background:var(--good); }
-  .path-card.worst .tag{ background:var(--bad); }
-  .path-card .title{ font-size:13px; font-weight:700; color:var(--navy); margin-bottom:6px; padding-right:70px;}
-  .path-card .route{ font-size:11.5px; color:var(--ink-soft); margin-bottom:8px; line-height:1.6;}
-  .path-card .result{
-    font-family:'Fraunces', serif;
-    font-size:38px;
-    font-weight:700;
-    color:var(--navy);
-    letter-spacing:0.2px;
-    line-height:1.1;
-    text-shadow:0 1px 0 rgba(0,0,0,0.02);
-  }
-  .path-card.best .result{ color:var(--good); }
-  .path-card.worst .result{ color:var(--bad); }
-  .path-card .result small{ font-size:15px; font-weight:600; color:var(--ink-soft); margin-left:5px;}
-  .path-card.best .result small{ color:var(--good); opacity:0.75; }
-  .path-card.worst .result small{ color:var(--bad); opacity:0.75; }
+  .path-card{
+    border-radius:var(--radius);
+    padding:15px 16px;
+    margin-bottom:10px;
+    background:#fff;
+    border:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .path-card.best{ border-color:var(--good); background:var(--good-bg); }
+  .path-card.worst{ border-color:var(--bad); background:var(--bad-bg); }
+  .path-card .tag{
+    position:absolute;
+    top:0; right:0;
+    font-size:10.5px;
+    font-weight:700;
+    padding:3px 10px;
+    border-bottom-left-radius:10px;
+    color:#fff;
+    letter-spacing:0.3px;
+  }
+  .path-card.best .tag{ background:var(--good); }
+  .path-card.worst .tag{ background:var(--bad); }
+  .path-card .title{ font-size:13px; font-weight:700; color:var(--navy); margin-bottom:6px; padding-right:70px;}
+  .path-card .route{ font-size:11.5px; color:var(--ink-soft); margin-bottom:8px; line-height:1.6;}
+  .path-card .result{
+    font-family:'Fraunces', serif;
+    font-size:38px;
+    font-weight:700;
+    color:var(--navy);
+    letter-spacing:0.2px;
+    line-height:1.1;
+    text-shadow:0 1px 0 rgba(0,0,0,0.02);
+  }
+  .path-card.best .result{ color:var(--good); }
+  .path-card.worst .result{ color:var(--bad); }
+  .path-card .result small{ font-size:15px; font-weight:600; color:var(--ink-soft); margin-left:5px;}
+  .path-card.best .result small{ color:var(--good); opacity:0.75; }
+  .path-card.worst .result small{ color:var(--bad); opacity:0.75; }
 
-  .summary{
-    margin-top:22px;
-    border-radius:18px;
-    padding:20px 18px 18px;
-    background:linear-gradient(160deg, var(--gold-deep), var(--gold) 75%);
-    color:#2a1e05;
-  }
-  .summary .headline{
-    font-family:'Fraunces', serif;
-    font-size:18px;
-    font-weight:700;
-    margin-bottom:4px;
-  }
-  .summary .subline{
-    font-size:12px;
-    opacity:0.75;
-    margin-bottom:16px;
-  }
-  .summary-compare{
-    display:flex;
-    align-items:stretch;
-    gap:8px;
-    margin-bottom:14px;
-  }
-  .compare-item{
-    flex:1;
-    background:rgba(255,255,255,0.4);
-    border-radius:12px;
-    padding:12px 10px;
-    text-align:center;
-    min-width:0;
-  }
-  .compare-item.is-best{ background:rgba(255,255,255,0.65); box-shadow:inset 0 0 0 1.5px rgba(31,122,92,0.45); }
-  .compare-item.is-worst{ background:rgba(255,255,255,0.25); box-shadow:inset 0 0 0 1.5px rgba(179,69,59,0.3); }
-  .compare-item .clabel{
-    font-size:10.5px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:0.3px;
-    opacity:0.7;
-    margin-bottom:6px;
-  }
-  .compare-item.is-best .clabel{ color:var(--good); opacity:1; }
-  .compare-item.is-worst .clabel{ color:var(--bad); opacity:1; }
-  .compare-item .cpath{ font-size:11px; opacity:0.75; margin-bottom:6px; line-height:1.4; min-height:28px; }
-  .compare-item .cvalue{
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:19px;
-    line-height:1.2;
-  }
-  .compare-item .cvalue span{ font-size:11px; font-weight:600; opacity:0.7; margin-left:2px; }
-  .summary-vs{
-    align-self:center;
-    font-size:11px;
-    font-weight:700;
-    opacity:0.55;
-    padding:0 2px;
-  }
-  .summary-diff{
-    background:rgba(255,255,255,0.42);
-    border-radius:12px;
-    padding:12px 14px;
-    text-align:center;
-  }
-  .summary-diff .dlabel{ font-size:11px; font-weight:700; opacity:0.7; margin-bottom:3px; letter-spacing:0.3px;}
-  .summary-diff .dvalue{
-    font-family:'Fraunces', serif;
-    font-weight:800;
-    font-size:27px;
-    line-height:1.15;
-  }
-  .summary-diff .dvalue .pct{ font-size:13px; font-weight:700; opacity:0.7; margin-left:6px; }
-  .summary .detail{ font-size:13px; line-height:1.9; }
-  .summary .diff{ font-weight:800; }
+  .summary{
+    margin-top:22px;
+    border-radius:18px;
+    padding:20px 18px 18px;
+    background:linear-gradient(160deg, var(--gold-deep), var(--gold) 75%);
+    color:#2a1e05;
+  }
+  .summary .headline{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .summary .subline{
+    font-size:12px;
+    opacity:0.75;
+    margin-bottom:16px;
+  }
+  .summary-compare{
+    display:flex;
+    align-items:stretch;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .compare-item{
+    flex:1;
+    background:rgba(255,255,255,0.4);
+    border-radius:12px;
+    padding:12px 10px;
+    text-align:center;
+    min-width:0;
+  }
+  .compare-item.is-best{ background:rgba(255,255,255,0.65); box-shadow:inset 0 0 0 1.5px rgba(31,122,92,0.45); }
+  .compare-item.is-worst{ background:rgba(255,255,255,0.25); box-shadow:inset 0 0 0 1.5px rgba(179,69,59,0.3); }
+  .compare-item .clabel{
+    font-size:10.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    opacity:0.7;
+    margin-bottom:6px;
+  }
+  .compare-item.is-best .clabel{ color:var(--good); opacity:1; }
+  .compare-item.is-worst .clabel{ color:var(--bad); opacity:1; }
+  .compare-item .cpath{ font-size:11px; opacity:0.75; margin-bottom:6px; line-height:1.4; min-height:28px; }
+  .compare-item .cvalue{
+    font-family:'Fraunces', serif;
+    font-weight:800;
+    font-size:19px;
+    line-height:1.2;
+  }
+  .compare-item .cvalue span{ font-size:11px; font-weight:600; opacity:0.7; margin-left:2px; }
+  .summary-vs{
+    align-self:center;
+    font-size:11px;
+    font-weight:700;
+    opacity:0.55;
+    padding:0 2px;
+  }
+  .summary-diff{
+    background:rgba(255,255,255,0.42);
+    border-radius:12px;
+    padding:12px 14px;
+    text-align:center;
+  }
+  .summary-diff .dlabel{ font-size:11px; font-weight:700; opacity:0.7; margin-bottom:3px; letter-spacing:0.3px;}
+  .summary-diff .dvalue{
+    font-family:'Fraunces', serif;
+    font-weight:800;
+    font-size:27px;
+    line-height:1.15;
+  }
+  .summary-diff .dvalue .pct{ font-size:13px; font-weight:700; opacity:0.7; margin-left:6px; }
+  .summary .detail{ font-size:13px; line-height:1.9; }
+  .summary .diff{ font-weight:800; }
 
-  .note{
-    font-size:11px;
-    color:var(--ink-soft);
-    line-height:1.7;
-    margin-top:18px;
-    padding-top:14px;
-    border-top:1px dashed var(--line);
-  }
-  .note a{ color:var(--navy); }
-  .link-out{
-    color:var(--navy-2);
-    text-decoration:underline;
-    cursor:pointer;
-    font-weight:600;
-  }
+  .note{
+    font-size:11px;
+    color:var(--ink-soft);
+    line-height:1.7;
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px dashed var(--line);
+  }
+  .note a{ color:var(--navy); }
+  .link-out{
+    color:var(--navy-2);
+    text-decoration:underline;
+    cursor:pointer;
+    font-weight:600;
+  }
 </style>
 </head>
 <body>
 
 <div class="panel">
-  <div class="brand"><div class="flag"></div><h1>台幣 ⇄ 泰銖 匯率比較</h1></div>
-  <div class="sub">輸入台幣金額，比較 4 種即時匯率、3 條換匯路徑</div>
+  <div class="brand"><div class="flag"></div><h1>台幣 ⇄ 泰銖 匯率比較</h1></div>
+  <div class="sub">輸入台幣金額，比較 4 種即時匯率、3 條換匯路徑</div>
 
-  <div class="amount-box">
-    <label>我要換多少台幣 (TWD)</label>
-    <div class="amount-input-row">
-      <span>NT$</span>
-      <input id="twdAmount" type="number" value="10000" min="0" step="100" inputmode="decimal">
-    </div>
-    <div class="quick-amounts">
-      <button data-v="1000">1,000</button>
-      <button data-v="5000">5,000</button>
-      <button data-v="10000">10,000</button>
-      <button data-v="30000">30,000</button>
-      <button data-v="50000">50,000</button>
-    </div>
-  </div>
+  <div class="amount-box">
+    <label>我要換多少台幣 (TWD)</label>
+    <div class="amount-input-row">
+      <span>NT$</span>
+      <input id="twdAmount" type="number" value="10000" min="0" step="100" inputmode="decimal">
+    </div>
+    <div class="quick-amounts">
+      <button data-v="1000">1,000</button>
+      <button data-v="5000">5,000</button>
+      <button data-v="10000">10,000</button>
+      <button data-v="30000">30,000</button>
+      <button data-v="50000">50,000</button>
+    </div>
+  </div>
 
-  <div class="section-title">
-    <span>① 台灣銀行牌告匯率（現金）</span>
-    <span id="botStatus" class="status">尚未抓取</span>
-  </div>
+  <div class="section-title">
+    <span>① 台灣銀行牌告匯率（現金）</span>
+    <span id="botStatus" class="status">尚未抓取</span>
+  </div>
 
-  <div class="combo-card">
-    <div class="combo-row">
-      <div class="row">
-        <div>
-          <div class="name">1. 台幣 → 泰銖</div>
-          <div class="desc">(現金賣出)・跟銀行換泰銖現鈔</div>
-        </div>
-        <div class="rate-edit">
-          <input class="rate-num" id="botThbSell" type="number" step="0.0001" value="1.0229">
-          <span class="unit">TWD/THB</span>
-        </div>
-      </div>
-    </div>
-    <div class="combo-row">
-      <div class="row">
-        <div>
-          <div class="name">2. 台幣 → 美金</div>
-          <div class="desc">(現金賣出)・先在台灣換成美金現鈔</div>
-        </div>
-        <div class="rate-edit">
-          <input class="rate-num" id="botUsdSell" type="number" step="0.001" value="32.48">
-          <span class="unit">TWD/USD</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="combo-card">
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">1. 台幣 → 泰銖</div>
+          <div class="desc">(現金賣出)・跟銀行換泰銖現鈔</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="botThbSell" type="number" step="0.0001" value="1.0229">
+          <span class="unit">TWD/THB</span>
+        </div>
+      </div>
+    </div>
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">2. 台幣 → 美金</div>
+          <div class="desc">(現金賣出)・先在台灣換成美金現鈔</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="botUsdSell" type="number" step="0.001" value="32.48">
+          <span class="unit">TWD/USD</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <div style="margin:6px 0 4px;">
-    <button class="action-btn" id="refreshBot">↻ 重新抓取台銀即時匯率</button>
-  </div>
-  <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
+  <div style="margin:6px 0 4px;">
+    <button class="action-btn" id="refreshBot">↻ 重新抓取台銀即時匯率</button>
+  </div>
+  <div id="botTime" style="font-size:11px;color:var(--ink-soft);text-align:right;margin-bottom:4px;"></div>
 
-  <div class="section-title">
-    <span>② 泰國 Super Rich（買入匯率）</span>
-    <span id="srStatus" class="status">請確認/手動輸入</span>
-  </div>
+  <div class="section-title">
+    <span>② 泰國 Super Rich（買入匯率）</span>
+    <span id="srStatus" class="status">請確認/手動輸入</span>
+  </div>
 
-  <div class="combo-card">
-    <div class="combo-row">
-      <div class="row">
-        <div>
-          <div class="name">3. 台幣 → 泰銖</div>
-          <div class="desc">近期約在 0.9~1.1 浮動，<br>實際匯率請以現場為準</div>
-        </div>
-        <div class="rate-edit">
-          <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
-          <span class="unit">THB/TWD</span>
-        </div>
-      </div>
-      <div class="source-note" id="srTwdSourceNote" style="display:none; margin-top:8px;"></div>
-    </div>
-    <div class="combo-row">
-      <div class="row">
-        <div>
-          <div class="name">4. 美金 → 泰銖</div>
-          <div class="desc">在泰國用美金現鈔換泰銖</div>
-        </div>
-        <div class="rate-edit">
-          <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
-          <span class="unit">THB/USD</span>
-        </div>
-      </div>
-      <div class="source-note" id="srUsdSourceNote" style="display:none; margin-top:8px;"></div>
-    </div>
-  </div>
+  <div class="combo-card">
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">3. 台幣 → 泰銖</div>
+          <div class="desc">近期約在 0.9~1.1 浮動，<br>實際匯率請以現場為準</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="srTwdBuy" type="number" step="0.001" value="1.00">
+          <span class="unit">THB/TWD</span>
+        </div>
+      </div>
+      <div class="source-note" id="srTwdSourceNote" style="display:none; margin-top:8px;"></div>
+    </div>
+    <div class="combo-row">
+      <div class="row">
+        <div>
+          <div class="name">4. 美金 → 泰銖</div>
+          <div class="desc">在泰國用美金現鈔換泰銖</div>
+        </div>
+        <div class="rate-edit">
+          <input class="rate-num" id="srUsdBuy" type="number" step="0.01" value="32.00">
+          <span class="unit">THB/USD</span>
+        </div>
+      </div>
+      <div class="source-note" id="srUsdSourceNote" style="display:none; margin-top:8px;"></div>
+    </div>
+  </div>
 
-  <div class="site-links">
-    <button class="refresh-btn green" id="openSrGreen">↗ Super Rich Thailand 官網</button>
-    <button class="refresh-btn orange" id="openSrOrange">↗ Super Rich 1965 官網</button>
-  </div>
-  <div style="margin:8px 0 14px;">
-    <button class="action-btn" id="refreshSr">↻ 重新抓取兩家匯率</button>
-  </div>
+  <div class="site-links">
+    <button class="refresh-btn green" id="openSrGreen">↗ Super Rich Thailand 官網</button>
+    <button class="refresh-btn orange" id="openSrOrange">↗ Super Rich 1965 官網</button>
+  </div>
+  <div style="margin:8px 0 14px;">
+    <button class="action-btn" id="refreshSr">↻ 重新抓取兩家匯率</button>
+  </div>
 
-  <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
+  <div class="section-title" style="margin-top:26px;">③ 三條路徑換到的泰銖</div>
 
-  <div class="path-card" id="cardA">
-    <div class="title">路徑 A・台灣銀行直接換泰銖</div>
-    <div class="route">台幣 → 泰銖（用①的匯率）</div>
-    <div class="result" id="resultA">-- <small>THB</small></div>
-  </div>
+  <div class="path-card" id="cardA">
+    <div class="title">路徑 A・台灣銀行直接換泰銖</div>
+    <div class="route">台幣 → 泰銖（用①的匯率）</div>
+    <div class="result" id="resultA">-- <small>THB</small></div>
+  </div>
 
-  <div class="path-card" id="cardB">
-    <div class="title">路徑 B・台灣換美金 → 泰國換泰銖</div>
-    <div class="route">台幣 → 美金（用②）→ 泰銖（用④）</div>
-    <div class="result" id="resultB">-- <small>THB</small></div>
-  </div>
+  <div class="path-card" id="cardB">
+    <div class="title">路徑 B・台灣換美金 → 泰國換泰銖</div>
+    <div class="route">台幣 → 美金（用②）→ 泰銖（用④）</div>
+    <div class="result" id="resultB">-- <small>THB</small></div>
+  </div>
 
-  <div class="path-card" id="cardC">
-    <div class="title">路徑 C・泰國直接用台幣換泰銖</div>
-    <div class="route">台幣 → 泰銖（用③，Super Rich 現場匯率）</div>
-    <div class="result" id="resultC">-- <small>THB</small></div>
-  </div>
+  <div class="path-card" id="cardC">
+    <div class="title">路徑 C・泰國直接用台幣換泰銖</div>
+    <div class="route">台幣 → 泰銖（用③，Super Rich 現場匯率）</div>
+    <div class="result" id="resultC">-- <small>THB</small></div>
+  </div>
 
-  <div class="summary">
-    <div class="headline" id="summaryHeadline">最佳與最差路徑比較</div>
-    <div class="subline" id="summarySubline">輸入金額後即會自動計算</div>
-    <div class="summary-compare" id="summaryCompare"></div>
-    <div class="summary-diff" id="summaryDiffBox" style="display:none;">
-      <div class="dlabel">整體差距</div>
-      <div class="dvalue" id="summaryDiffValue">--</div>
-    </div>
-  </div>
+  <div class="summary">
+    <div class="headline" id="summaryHeadline">最佳與最差路徑比較</div>
+    <div class="subline" id="summarySubline">輸入金額後即會自動計算</div>
+    <div class="summary-compare" id="summaryCompare"></div>
+    <div class="summary-diff" id="summaryDiffBox" style="display:none;">
+      <div class="dlabel">整體差距</div>
+      <div class="dvalue" id="summaryDiffValue">--</div>
+    </div>
+  </div>
 
-  <div class="section-title" style="margin-top:26px;">④ 這些差額能喝幾杯 LadyDrink？</div>
+  <div class="section-title" style="margin-top:26px;">④ 這些差額能喝幾杯 LadyDrink？</div>
 
-  <div class="rate-card">
-    <div class="row">
-      <div>
-        <div class="name">🍹 LadyDrink 一杯多少錢</div>
-        <div class="desc">自行輸入你常去的價格</div>
-      </div>
-      <div class="rate-edit">
-        <input class="rate-num" id="ladyDrinkPrice" type="number" step="1" value="200" min="1">
-        <span class="unit">THB</span>
-      </div>
-    </div>
-    <div class="quick-amounts" style="margin-top:10px;">
-      <button data-lp="180">180</button>
-      <button data-lp="190">190</button>
-      <button data-lp="200">200</button>
-      <button data-lp="220">220</button>
-      <button data-lp="250">250</button>
-    </div>
-  </div>
+  <div class="rate-card">
+    <div class="row">
+      <div>
+        <div class="name">🍹 LadyDrink 一杯多少錢</div>
+        <div class="desc">自行輸入你常去的價格</div>
+      </div>
+      <div class="rate-edit">
+        <input class="rate-num" id="ladyDrinkPrice" type="number" step="1" value="200" min="1">
+        <span class="unit">THB</span>
+      </div>
+    </div>
+    <div class="quick-amounts" style="margin-top:10px;">
+      <button data-lp="180">180</button>
+      <button data-lp="190">190</button>
+      <button data-lp="200">200</button>
+      <button data-lp="220">220</button>
+      <button data-lp="250">250</button>
+    </div>
+  </div>
 
-  <div class="summary" id="ladyDrinkSummary" style="background:linear-gradient(135deg, #1b3352, #12233a); color:#f2ede0;">
-    <div class="headline">🎉 太好了！</div>
-    <div class="detail" id="ladyDrinkDetail">輸入匯率後即會自動計算</div>
-  </div>
+  <div class="summary" id="ladyDrinkSummary" style="background:linear-gradient(135deg, #1b3352, #12233a); color:#f2ede0;">
+    <div class="headline">🎉 太好了！</div>
+    <div class="detail" id="ladyDrinkDetail">輸入匯率後即會自動計算</div>
+  </div>
 
-  <div class="note">
-    ①②即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金）。③④嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965</span> 兩家匯率，因網站為前端動態載入，無法保證每次成功，出發前請以官網或門市現場為準。所有結果僅供參考，實際交易以現場匯率及手續費為準。
-  </div>
+  <div class="note">
+    ①②即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金）。③④嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965</span> 兩家匯率，因網站為前端動態載入，無法保證每次成功，出發前請以官網或門市現場為準。所有結果僅供參考，實際交易以現場匯率及手續費為準。
+  </div>
 </div>
 
 <script>
 const $ = (id) => document.getElementById(id);
 
 function fmt(n, digits=2){
-  if(!isFinite(n)) return '--';
-  return n.toLocaleString('zh-TW', {minimumFractionDigits:digits, maximumFractionDigits:digits});
+  if(!isFinite(n)) return '--';
+  return n.toLocaleString('zh-TW', {minimumFractionDigits:digits, maximumFractionDigits:digits});
 }
 
 function calc(){
-  const twd = parseFloat($('twdAmount').value) || 0;
-  const botThbSell = parseFloat($('botThbSell').value) || 0;
-  const botUsdSell = parseFloat($('botUsdSell').value) || 0;
-  const srTwdBuy = parseFloat($('srTwdBuy').value) || 0;
-  const srUsdBuy = parseFloat($('srUsdBuy').value) || 0;
+  const twd = parseFloat($('twdAmount').value) || 0;
+  const botThbSell = parseFloat($('botThbSell').value) || 0;
+  const botUsdSell = parseFloat($('botUsdSell').value) || 0;
+  const srTwdBuy = parseFloat($('srTwdBuy').value) || 0;
+  const srUsdBuy = parseFloat($('srUsdBuy').value) || 0;
 
-  const pathA = botThbSell > 0 ? twd / botThbSell : NaN;
-  const usdLeg = botUsdSell > 0 ? twd / botUsdSell : NaN;
-  const pathB = (isFinite(usdLeg) && srUsdBuy > 0) ? usdLeg * srUsdBuy : NaN;
-  const pathC = twd * srTwdBuy;
+  const pathA = botThbSell > 0 ? twd / botThbSell : NaN;
+  const usdLeg = botUsdSell > 0 ? twd / botUsdSell : NaN;
+  const pathB = (isFinite(usdLeg) && srUsdBuy > 0) ? usdLeg * srUsdBuy : NaN;
+  const pathC = twd * srTwdBuy;
 
-  $('resultA').innerHTML = fmt(pathA) + ' <small>THB</small>';
-  $('resultB').innerHTML = fmt(pathB) + ' <small>THB</small>' + (isFinite(usdLeg) ? ` <small style="display:block;font-size:11px;margin-top:2px;">(先換得 US$${fmt(usdLeg)})</small>` : '');
-  $('resultC').innerHTML = fmt(pathC) + ' <small>THB</small>';
+  $('resultA').innerHTML = fmt(pathA) + ' <small>THB</small>';
+  $('resultB').innerHTML = fmt(pathB) + ' <small>THB</small>' + (isFinite(usdLeg) ? ` <small style="display:block;font-size:11px;margin-top:2px;">(先換得 US$${fmt(usdLeg)})</small>` : '');
+  $('resultC').innerHTML = fmt(pathC) + ' <small>THB</small>';
 
-  const paths = [
-    {key:'A', el:'cardA', val:pathA, name:'路徑 A（台灣銀行直換）'},
-    {key:'B', el:'cardB', val:pathB, name:'路徑 B（台灣換美金→泰國換泰銖）'},
-    {key:'C', el:'cardC', val:pathC, name:'路徑 C（泰國 Super Rich 直換）'},
-  ];
+  const paths = [
+    {key:'A', el:'cardA', val:pathA, name:'路徑 A（台灣銀行直換）'},
+    {key:'B', el:'cardB', val:pathB, name:'路徑 B（台灣換美金→泰國換泰銖）'},
+    {key:'C', el:'cardC', val:pathC, name:'路徑 C（泰國 Super Rich 直換）'},
+  ];
 
-  ['cardA','cardB','cardC'].forEach(id=>{
-    $(id).classList.remove('best','worst');
-    const existingTag = $(id).querySelector('.tag');
-    if(existingTag) existingTag.remove();
-  });
+  ['cardA','cardB','cardC'].forEach(id=>{
+    $(id).classList.remove('best','worst');
+    const existingTag = $(id).querySelector('.tag');
+    if(existingTag) existingTag.remove();
+  });
 
-  const validPaths = paths.filter(p=>isFinite(p.val) && p.val>0);
-  if(validPaths.length >= 2){
-    const best = validPaths.reduce((a,b)=> a.val>b.val ? a : b);
-    const worst = validPaths.reduce((a,b)=> a.val<b.val ? a : b);
-    if(best.key !== worst.key){
-      const bestCard = $(best.el);
-      const worstCard = $(worst.el);
-      bestCard.classList.add('best');
-      const tagB = document.createElement('div'); tagB.className='tag'; tagB.textContent='最划算';
-      bestCard.appendChild(tagB);
-      worstCard.classList.add('worst');
-      const tagW = document.createElement('div'); tagW.className='tag'; tagW.textContent='最不划算';
-      worstCard.appendChild(tagW);
+  const validPaths = paths.filter(p=>isFinite(p.val) && p.val>0);
+  if(validPaths.length >= 2){
+    const best = validPaths.reduce((a,b)=> a.val>b.val ? a : b);
+    const worst = validPaths.reduce((a,b)=> a.val<b.val ? a : b);
+    if(best.key !== worst.key){
+      const bestCard = $(best.el);
+      const worstCard = $(worst.el);
+      bestCard.classList.add('best');
+      const tagB = document.createElement('div'); tagB.className='tag'; tagB.textContent='最划算';
+      bestCard.appendChild(tagB);
+      worstCard.classList.add('worst');
+      const tagW = document.createElement('div'); tagW.className='tag'; tagW.textContent='最不划算';
+      worstCard.appendChild(tagW);
 
-      const diff = best.val - worst.val;
-      const pct = (diff / worst.val) * 100;
-      $('summaryHeadline').textContent = `🏆 ${best.name} 勝出`;
-      $('summarySubline').textContent = `換 NT$${fmt(twd,0)} 時的比較結果`;
-      $('summaryCompare').innerHTML = `
-        <div class="compare-item is-best">
-          <div class="clabel">✓ 最划算</div>
-          <div class="cpath">${best.name}</div>
-          <div class="cvalue">${fmt(best.val)}<span>THB</span></div>
-        </div>
-        <div class="summary-vs">vs</div>
-        <div class="compare-item is-worst">
-          <div class="clabel">✕ 最不划算</div>
-          <div class="cpath">${worst.name}</div>
-          <div class="cvalue">${fmt(worst.val)}<span>THB</span></div>
-        </div>`;
-      $('summaryDiffBox').style.display = 'block';
-      $('summaryDiffValue').innerHTML = `${fmt(diff)} THB <span class="pct">（約 ${fmt(pct,1)}%）</span>`;
-      updateLadyDrink(diff);
-    } else {
-      $('summaryHeadline').textContent = '各路徑差異不大';
-      $('summarySubline').textContent = '目前輸入的匯率下，各路徑結果非常接近。';
-      $('summaryCompare').innerHTML = '';
-      $('summaryDiffBox').style.display = 'none';
-      updateLadyDrink(0);
-    }
-  } else {
-    $('summaryHeadline').textContent = '請輸入完整匯率';
-    $('summarySubline').textContent = '至少需要兩條有效路徑才能比較。';
-    $('summaryCompare').innerHTML = '';
-    $('summaryDiffBox').style.display = 'none';
-    updateLadyDrink(NaN);
-  }
+      const diff = best.val - worst.val;
+      const pct = (diff / worst.val) * 100;
+      $('summaryHeadline').textContent = `🏆 ${best.name} 勝出`;
+      $('summarySubline').textContent = `換 NT$${fmt(twd,0)} 時的比較結果`;
+      $('summaryCompare').innerHTML = `
+        <div class="compare-item is-best">
+          <div class="clabel">✓ 最划算</div>
+          <div class="cpath">${best.name}</div>
+          <div class="cvalue">${fmt(best.val)}<span>THB</span></div>
+        </div>
+        <div class="summary-vs">vs</div>
+        <div class="compare-item is-worst">
+          <div class="clabel">✕ 最不划算</div>
+          <div class="cpath">${worst.name}</div>
+          <div class="cvalue">${fmt(worst.val)}<span>THB</span></div>
+        </div>`;
+      $('summaryDiffBox').style.display = 'block';
+      $('summaryDiffValue').innerHTML = `${fmt(diff)} THB <span class="pct">（約 ${fmt(pct,1)}%）</span>`;
+      updateLadyDrink(diff);
+    } else {
+      $('summaryHeadline').textContent = '各路徑差異不大';
+      $('summarySubline').textContent = '目前輸入的匯率下，各路徑結果非常接近。';
+      $('summaryCompare').innerHTML = '';
+      $('summaryDiffBox').style.display = 'none';
+      updateLadyDrink(0);
+    }
+  } else {
+    $('summaryHeadline').textContent = '請輸入完整匯率';
+    $('summarySubline').textContent = '至少需要兩條有效路徑才能比較。';
+    $('summaryCompare').innerHTML = '';
+    $('summaryDiffBox').style.display = 'none';
+    updateLadyDrink(NaN);
+  }
 }
 
 function updateLadyDrink(diffThb){
-  const price = parseFloat($('ladyDrinkPrice').value) || 0;
-  const detailEl = $('ladyDrinkDetail');
-  if(!isFinite(diffThb) || price <= 0){
-    detailEl.textContent = '請輸入完整匯率與 LadyDrink 價格';
-    return;
-  }
-  const drinks = diffThb / price;
-  const drinksRounded = Math.round(drinks * 10) / 10;
-  if(diffThb <= 0){
-    detailEl.innerHTML = '這次換匯路徑差異不大，先省下腦力，乾脆隨便選一條路徑，把力氣留給喝酒。';
-    return;
-  }
-  detailEl.innerHTML =
-    `選對路徑省下的 <b>${fmt(diffThb)} THB</b>，以一杯 <b>${fmt(price,0)} THB</b> 計算，<br>` +
-    `多了 <span class="diff" style="font-size:20px;">${fmt(drinksRounded,1)} 杯</span> LadyDrink 可以請！`;
+  const price = parseFloat($('ladyDrinkPrice').value) || 0;
+  const detailEl = $('ladyDrinkDetail');
+  if(!isFinite(diffThb) || price <= 0){
+    detailEl.textContent = '請輸入完整匯率與 LadyDrink 價格';
+    return;
+  }
+  const drinks = diffThb / price;
+  const drinksRounded = Math.round(drinks * 10) / 10;
+  if(diffThb <= 0){
+    detailEl.innerHTML = '這次換匯路徑差異不大，先省下腦力，乾脆隨便選一條路徑，把力氣留給喝酒。';
+    return;
+  }
+  detailEl.innerHTML =
+    `選對路徑省下的 <b>${fmt(diffThb)} THB</b>，以一杯 <b>${fmt(price,0)} THB</b> 計算，<br>` +
+    `多了 <span class="diff" style="font-size:20px;">${fmt(drinksRounded,1)} 杯</span> LadyDrink 可以請！`;
 }
 
 document.querySelectorAll('.amount-box .quick-amounts button').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    $('twdAmount').value = btn.dataset.v;
-    calc();
-  });
+  btn.addEventListener('click', ()=>{
+    $('twdAmount').value = btn.dataset.v;
+    calc();
+  });
 });
 
 ['twdAmount','botThbSell','botUsdSell','srTwdBuy','srUsdBuy','ladyDrinkPrice'].forEach(id=>{
-  $(id).addEventListener('input', calc);
+  $(id).addEventListener('input', calc);
 });
 
 document.querySelectorAll('[data-lp]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    $('ladyDrinkPrice').value = btn.dataset.lp;
-    calc();
-  });
+  btn.addEventListener('click', ()=>{
+    $('ladyDrinkPrice').value = btn.dataset.lp;
+    calc();
+  });
 });
 
 $('openSrGreen').addEventListener('click', ()=>{
-  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
+  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
 });
 $('openSrOrange').addEventListener('click', ()=>{
-  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
+  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
 });
 $('srNoteLinkGreen').addEventListener('click', ()=>{
-  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
+  window.open('https://www.superrichthailand.com/#!/en/exchange', '_blank');
 });
 $('srNoteLinkOrange').addEventListener('click', ()=>{
-  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
+  window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
 });
 
 // ---- Bank of Taiwan live fetch ----
 async function fetchWithTimeout(url, timeoutMs){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
-  try{
-    const res = await fetch(url, {cache:'no-store', signal:controller.signal});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const text = await res.text();
-    if(!text || text.length <= 20) throw new Error('empty response');
-    return text;
-  } finally {
-    clearTimeout(timer);
-  }
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), timeoutMs);
+  try{
+    const res = await fetch(url, {cache:'no-store', signal:controller.signal});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text = await res.text();
+    if(!text || text.length <= 20) throw new Error('empty response');
+    return text;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function fetchViaProxies(targetUrl, timeoutMs=9000){
-  const builders = [
-    (u)=> u, // try a direct fetch first, in case the target already allows CORS
-    (u)=> `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    (u)=> `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-    (u)=> `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  ];
-  // race all candidates in parallel instead of trying them one by one — whichever answers first wins
-  const attempts = builders.map(build => fetchWithTimeout(build(targetUrl), timeoutMs));
-  try{
-    return await Promise.any(attempts);
-  }catch(e){
-    throw new Error('all fetch attempts failed');
-  }
+  const builders = [
+    (u)=> u, // try a direct fetch first, in case the target already allows CORS
+    (u)=> `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    (u)=> `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+    (u)=> `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  ];
+  // race all candidates in parallel instead of trying them one by one — whichever answers first wins
+  const attempts = builders.map(build => fetchWithTimeout(build(targetUrl), timeoutMs));
+  try{
+    return await Promise.any(attempts);
+  }catch(e){
+    throw new Error('all fetch attempts failed');
+  }
 }
 
 async function refreshBotRates(){
-  const btn = $('refreshBot');
-  const statusEl = $('botStatus');
-  btn.disabled = true;
-  statusEl.textContent = '抓取中…';
-  statusEl.className = 'status';
-  try{
-    const csv = await fetchViaProxies('https://rate.bot.com.tw/xrt/flcsv/0/day');
-    const lines = csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    let usdSell=null, thbSell=null;
-    for(const line of lines){
-      const parts = line.split(',');
-      const code = parts[0].replace(/^\uFEFF/,'').trim();
-      if(code === 'USD' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) usdSell = v;
-      }
-      if(code === 'THB' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) thbSell = v;
-      }
-    }
-    if(usdSell && thbSell){
-      $('botUsdSell').value = usdSell;
-      $('botThbSell').value = thbSell;
-      statusEl.textContent = '即時抓取成功';
-      statusEl.className = 'status ok';
-      const now = new Date();
-      $('botTime').textContent = '更新時間：' + now.toLocaleString('zh-TW', {hour12:false});
-      calc();
-    } else {
-      throw new Error('parse failed');
-    }
-  }catch(e){
-    statusEl.textContent = '抓取失敗，請手動輸入';
-    statusEl.className = 'status err';
-  }finally{
-    btn.disabled = false;
-  }
+  const btn = $('refreshBot');
+  const statusEl = $('botStatus');
+  btn.disabled = true;
+  statusEl.textContent = '抓取中…';
+  statusEl.className = 'status';
+  try{
+    const csv = await fetchViaProxies('https://rate.bot.com.tw/xrt/flcsv/0/day');
+    const lines = csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+    let usdSell=null, thbSell=null;
+    for(const line of lines){
+      const parts = line.split(',');
+      const code = parts[0].replace(/^\uFEFF/,'').trim();
+      if(code === 'USD' && parts.length > 12){
+        const v = parseFloat(parts[12]);
+        if(isFinite(v) && v>0) usdSell = v;
+      }
+      if(code === 'THB' && parts.length > 12){
+        const v = parseFloat(parts[12]);
+        if(isFinite(v) && v>0) thbSell = v;
+      }
+    }
+    if(usdSell && thbSell){
+      $('botUsdSell').value = usdSell;
+      $('botThbSell').value = thbSell;
+      statusEl.textContent = '即時抓取成功';
+      statusEl.className = 'status ok';
+      const now = new Date();
+      $('botTime').textContent = '更新時間：' + now.toLocaleString('zh-TW', {hour12:false});
+      calc();
+    } else {
+      throw new Error('parse failed');
+    }
+  }catch(e){
+    statusEl.textContent = '抓取失敗，請手動輸入';
+    statusEl.className = 'status err';
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 // ---- Super Rich best-effort live fetch, cross-checked across 2 brands ----
 function extractNumbersNear(text, keywords, min, max, maxCount=8){
-  const results = [];
-  const anchors = Array.isArray(keywords) ? keywords : [keywords];
-  for(const keyword of anchors){
-    const re = new RegExp(keyword + '[\\s\\S]{0,200}?(\\d{1,3}\\.\\d{1,4})', 'gi');
-    let m;
-    while((m = re.exec(text)) !== null && results.length < maxCount){
-      const v = parseFloat(m[1]);
-      if(isFinite(v) && v > min && v < max) results.push(v);
-    }
-  }
-  return results;
+  const results = [];
+  const anchors = Array.isArray(keywords) ? keywords : [keywords];
+  for(const keyword of anchors){
+    const re = new RegExp(keyword + '[\\s\\S]{0,200}?(\\d{1,3}\\.\\d{1,4})', 'gi');
+    let m;
+    while((m = re.exec(text)) !== null && results.length < maxCount){
+      const v = parseFloat(m[1]);
+      if(isFinite(v) && v > min && v < max) results.push(v);
+    }
+  }
+  return results;
 }
 
 // second method: look for a whole "row" of text (markdown table row, or a line of content)
 // that mentions the keyword, then pull decimal numbers out of that same row/line —
 // this matches how tables usually render (currency code/country name and its rate sit on the same row)
 function extractFromRow(text, keywords, min, max, maxCount=8){
-  const results = [];
-  const anchors = Array.isArray(keywords) ? keywords : [keywords];
-  // split on markdown table row breaks AND newlines, whichever is present
-  const rows = text.split(/\n{1,2}|\s\|\s/).map(r=>r.trim()).filter(Boolean);
-  for(const row of rows){
-    if(results.length >= maxCount) break;
-    const hasAnchor = anchors.some(k => new RegExp(k, 'i').test(row));
-    if(!hasAnchor) continue;
-    const nums = row.match(/\d{1,3}\.\d{1,4}/g) || [];
-    for(const n of nums){
-      const v = parseFloat(n);
-      if(isFinite(v) && v > min && v < max) results.push(v);
-    }
-  }
-  return results;
+  const results = [];
+  const anchors = Array.isArray(keywords) ? keywords : [keywords];
+  // split on markdown table row breaks AND newlines, whichever is present
+  const rows = text.split(/\n{1,2}|\s\|\s/).map(r=>r.trim()).filter(Boolean);
+  for(const row of rows){
+    if(results.length >= maxCount) break;
+    const hasAnchor = anchors.some(k => new RegExp(k, 'i').test(row));
+    if(!hasAnchor) continue;
+    const nums = row.match(/\d{1,3}\.\d{1,4}/g) || [];
+    for(const n of nums){
+      const v = parseFloat(n);
+      if(isFinite(v) && v > min && v < max) results.push(v);
+    }
+  }
+  return results;
 }
 
 function median(arr){
-  if(!arr.length) return null;
-  const s = [...arr].sort((a,b)=>a-b);
-  const mid = Math.floor(s.length/2);
-  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
+  if(!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
 }
 
 async function refreshSrRates(){
-  const btn = $('refreshSr');
-  const statusEl = $('srStatus');
-  btn.disabled = true;
-  statusEl.textContent = '比對兩家來源中…';
-  statusEl.className = 'status';
-  $('srTwdSourceNote').style.display = 'none';
-  $('srUsdSourceNote').style.display = 'none';
+  const btn = $('refreshSr');
+  const statusEl = $('srStatus');
+  btn.disabled = true;
+  statusEl.textContent = '比對兩家來源中…';
+  statusEl.className = 'status';
+  $('srTwdSourceNote').style.display = 'none';
+  $('srUsdSourceNote').style.display = 'none';
 
-  try{
-    const sources = [
-      { short:'綠標', full:'Super Rich Thailand', cls:'is-green', url:'https://www.superrichthailand.com/#!/en/exchange' },
-      { short:'橘標', full:'Super Rich 1965',      cls:'is-orange', url:'https://www.superrich1965.com/en/exchange-rate' },
-    ];
+  try{
+    const sources = [
+      { short:'綠標', full:'Super Rich Thailand', cls:'is-green', url:'https://www.superrichthailand.com/#!/en/exchange' },
+      { short:'橘標', full:'Super Rich 1965',      cls:'is-orange', url:'https://www.superrich1965.com/en/exchange-rate' },
+    ];
 
-    // fetch both brands at the same time instead of one after another
-    const settled = await Promise.allSettled(
-      sources.map(s => fetchViaProxies('https://r.jina.ai/' + s.url, 16000))
-    );
+    // fetch both brands at the same time instead of one after another
+    const settled = await Promise.allSettled(
+      sources.map(s => fetchViaProxies('https://r.jina.ai/' + s.url, 16000))
+    );
 
-    const twdBySource = []; // { short, full, cls, value }
-    const usdBySource = [];
+    const twdBySource = []; // { short, full, cls, value }
+    const usdBySource = [];
 
-    settled.forEach((result, i) => {
-      const src = sources[i];
-      if(result.status !== 'fulfilled') return;
-      const text = result.value;
+    settled.forEach((result, i) => {
+      const src = sources[i];
+      if(result.status !== 'fulfilled') return;
+      const text = result.value;
 
-      const twdAnchors = ['TWD', 'Taiwan'];
-      const usdAnchors = ['USD', 'United States'];
-      const twdVals = [...extractFromRow(text, twdAnchors, 0.75, 1.35), ...extractNumbersNear(text, twdAnchors, 0.75, 1.35)];
-      const usdVals = [...extractFromRow(text, usdAnchors, 20, 50), ...extractNumbersNear(text, usdAnchors, 20, 50)];
-      const twdVal = median(twdVals);
-      const usdVal = median(usdVals);
-      if(twdVal !== null) twdBySource.push({ ...src, value: twdVal });
-      if(usdVal !== null) usdBySource.push({ ...src, value: usdVal });
-    });
+      const twdAnchors = ['TWD', 'Taiwan'];
+      const usdAnchors = ['USD', 'United States'];
+      const twdVals = [...extractFromRow(text, twdAnchors, 0.75, 1.35), ...extractNumbersNear(text, twdAnchors, 0.75, 1.35)];
+      const usdVals = [...extractFromRow(text, usdAnchors, 20, 50), ...extractNumbersNear(text, usdAnchors, 20, 50)];
+      const twdVal = median(twdVals);
+      const usdVal = median(usdVals);
+      if(twdVal !== null) twdBySource.push({ ...src, value: twdVal });
+      if(usdVal !== null) usdBySource.push({ ...src, value: usdVal });
+    });
 
-    // pick the more favorable (higher) buying rate between the two brands
-    function pickBest(arr){
-      if(!arr.length) return null;
-      return arr.reduce((a,b) => (b.value > a.value ? b : a));
-    }
+    // pick the more favorable (higher) buying rate between the two brands
+    function pickBest(arr){
+      if(!arr.length) return null;
+      return arr.reduce((a,b) => (b.value > a.value ? b : a));
+    }
 
-    const twdBest = pickBest(twdBySource);
-    const usdBest = pickBest(usdBySource);
+    const twdBest = pickBest(twdBySource);
+    const usdBest = pickBest(usdBySource);
 
-    function applyNote(noteEl, best, arr, digits){
-      if(!best){ noteEl.style.display = 'none'; return; }
-      noteEl.className = 'source-note ' + best.cls;
-      noteEl.style.display = 'inline-flex';
-      if(arr.length >= 2){
-        noteEl.textContent = `抓取 ${best.short} ${best.full} 匯率較佳（${best.value.toFixed(digits)}）`;
-      } else {
-        noteEl.textContent = `僅 ${best.short} ${best.full} 抓取成功（${best.value.toFixed(digits)}）`;
-      }
-    }
+    function applyNote(noteEl, best, arr, digits){
+      if(!best){ noteEl.style.display = 'none'; return; }
+      noteEl.className = 'source-note ' + best.cls;
+      noteEl.style.display = 'inline-flex';
+      if(arr.length >= 2){
+        noteEl.textContent = `抓取 ${best.short} ${best.full} 匯率較佳（${best.value.toFixed(digits)}）`;
+      } else {
+        noteEl.textContent = `僅 ${best.short} ${best.full} 抓取成功（${best.value.toFixed(digits)}）`;
+      }
+    }
 
-    if(twdBest !== null){ $('srTwdBuy').value = twdBest.value.toFixed(4); }
-    if(usdBest !== null){ $('srUsdBuy').value = usdBest.value.toFixed(2); }
-    applyNote($('srTwdSourceNote'), twdBest, twdBySource, 3);
-    applyNote($('srUsdSourceNote'), usdBest, usdBySource, 2);
+    if(twdBest !== null){ $('srTwdBuy').value = twdBest.value.toFixed(4); }
+    if(usdBest !== null){ $('srUsdBuy').value = usdBest.value.toFixed(2); }
+    applyNote($('srTwdSourceNote'), twdBest, twdBySource, 3);
+    applyNote($('srUsdSourceNote'), usdBest, usdBySource, 2);
 
-    // report each field's outcome separately — a partial success should never look like a full success
-    if(twdBest !== null && usdBest !== null){
-      statusEl.textContent = '台幣、美金皆已更新';
-      statusEl.className = 'status ok';
-    } else if(twdBest !== null && usdBest === null){
-      statusEl.textContent = '台幣已更新，美金抓取失敗';
-      statusEl.className = 'status warn';
-    } else if(twdBest === null && usdBest !== null){
-      statusEl.textContent = '美金已更新，台幣抓取失敗，請手動輸入';
-      statusEl.className = 'status warn';
-    } else {
-      statusEl.textContent = '自動抓取失敗，請手動輸入';
-      statusEl.className = 'status err';
-    }
-  } catch(e){
-    // safety net: any unexpected error surfaces here instead of leaving the button stuck forever
-    statusEl.textContent = '發生未預期錯誤：' + (e && e.message ? e.message : String(e));
-    statusEl.className = 'status err';
-  } finally{
-    calc();
-    btn.disabled = false;
-  }
+    // report each field's outcome separately — a partial success should never look like a full success
+    if(twdBest !== null && usdBest !== null){
+      statusEl.textContent = '台幣、美金皆已更新';
+      statusEl.className = 'status ok';
+    } else if(twdBest !== null && usdBest === null){
+      statusEl.textContent = '台幣已更新，美金抓取失敗';
+      statusEl.className = 'status warn';
+    } else if(twdBest === null && usdBest !== null){
+      statusEl.textContent = '美金已更新，台幣抓取失敗，請手動輸入';
+      statusEl.className = 'status warn';
+    } else {
+      statusEl.textContent = '自動抓取失敗，請手動輸入';
+      statusEl.className = 'status err';
+    }
+  } catch(e){
+    // safety net: any unexpected error surfaces here instead of leaving the button stuck forever
+    statusEl.textContent = '發生未預期錯誤：' + (e && e.message ? e.message : String(e));
+    statusEl.className = 'status err';
+  } finally{
+    calc();
+    btn.disabled = false;
+  }
 }
 
 $('refreshBot').addEventListener('click', refreshBotRates);
