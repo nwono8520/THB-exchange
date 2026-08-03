@@ -573,7 +573,7 @@
   </div>
 
   <div class="note">
-    ①②即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金）。③④嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965</span> 兩家匯率，因網站為前端動態載入，無法保證每次成功，出發前請以官網或門市現場為準。所有結果僅供參考，實際交易以現場匯率及手續費為準。
+    ①②即時抓取<a href="https://rate.bot.com.tw/xrt?Lang=zh-TW" target="_blank">台灣銀行牌告匯率</a>（現金）。③④嘗試比對 <span class="link-out" id="srNoteLinkGreen">Super Rich Thailand</span> 與 <span class="link-out" id="srNoteLinkOrange">Super Rich 1965</span> 兩家匯率，出發前請以官網或門市現場為準。所有結果僅供參考，實際交易以現場匯率及手續費為準。
   </div>
 </div>
 
@@ -711,35 +711,12 @@ $('srNoteLinkOrange').addEventListener('click', ()=>{
   window.open('https://www.superrich1965.com/en/exchange-rate', '_blank');
 });
 
-// ---- Bank of Taiwan live fetch ----
-async function fetchWithTimeout(url, timeoutMs){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), timeoutMs);
-  try{
-    const res = await fetch(url, {cache:'no-store', signal:controller.signal});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const text = await res.text();
-    if(!text || text.length <= 20) throw new Error('empty response');
-    return text;
-  } finally {
-    clearTimeout(timer);
-  }
-}
+// ---- 改用 Netlify Function 抓匯率，不再依賴外部 CORS 代理 ----
 
-async function fetchViaProxies(targetUrl, timeoutMs=9000){
-  const builders = [
-    (u)=> u, // try a direct fetch first, in case the target already allows CORS
-    (u)=> `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    (u)=> `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-    (u)=> `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
-  ];
-  // race all candidates in parallel instead of trying them one by one — whichever answers first wins
-  const attempts = builders.map(build => fetchWithTimeout(build(targetUrl), timeoutMs));
-  try{
-    return await Promise.any(attempts);
-  }catch(e){
-    throw new Error('all fetch attempts failed');
-  }
+async function fetchRatesFromFunction(){
+  const res = await fetch('/.netlify/functions/rates', { cache: 'no-store' });
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
 }
 
 async function refreshBotRates(){
@@ -749,21 +726,8 @@ async function refreshBotRates(){
   statusEl.textContent = '抓取中…';
   statusEl.className = 'status';
   try{
-    const csv = await fetchViaProxies('https://rate.bot.com.tw/xrt/flcsv/0/day');
-    const lines = csv.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    let usdSell=null, thbSell=null;
-    for(const line of lines){
-      const parts = line.split(',');
-      const code = parts[0].replace(/^\uFEFF/,'').trim();
-      if(code === 'USD' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) usdSell = v;
-      }
-      if(code === 'THB' && parts.length > 12){
-        const v = parseFloat(parts[12]);
-        if(isFinite(v) && v>0) thbSell = v;
-      }
-    }
+    const data = await fetchRatesFromFunction();
+    const { usdSell, thbSell, error } = data.bot;
     if(usdSell && thbSell){
       $('botUsdSell').value = usdSell;
       $('botThbSell').value = thbSell;
@@ -773,7 +737,7 @@ async function refreshBotRates(){
       $('botTime').textContent = '更新時間：' + now.toLocaleString('zh-TW', {hour12:false});
       calc();
     } else {
-      throw new Error('parse failed');
+      throw new Error(error || 'parse failed');
     }
   }catch(e){
     statusEl.textContent = '抓取失敗，請手動輸入';
@@ -781,49 +745,6 @@ async function refreshBotRates(){
   }finally{
     btn.disabled = false;
   }
-}
-
-// ---- Super Rich best-effort live fetch, cross-checked across 2 brands ----
-function extractNumbersNear(text, keywords, min, max, maxCount=8){
-  const results = [];
-  const anchors = Array.isArray(keywords) ? keywords : [keywords];
-  for(const keyword of anchors){
-    const re = new RegExp(keyword + '[\\s\\S]{0,200}?(\\d{1,3}\\.\\d{1,4})', 'gi');
-    let m;
-    while((m = re.exec(text)) !== null && results.length < maxCount){
-      const v = parseFloat(m[1]);
-      if(isFinite(v) && v > min && v < max) results.push(v);
-    }
-  }
-  return results;
-}
-
-// second method: look for a whole "row" of text (markdown table row, or a line of content)
-// that mentions the keyword, then pull decimal numbers out of that same row/line —
-// this matches how tables usually render (currency code/country name and its rate sit on the same row)
-function extractFromRow(text, keywords, min, max, maxCount=8){
-  const results = [];
-  const anchors = Array.isArray(keywords) ? keywords : [keywords];
-  // split on markdown table row breaks AND newlines, whichever is present
-  const rows = text.split(/\n{1,2}|\s\|\s/).map(r=>r.trim()).filter(Boolean);
-  for(const row of rows){
-    if(results.length >= maxCount) break;
-    const hasAnchor = anchors.some(k => new RegExp(k, 'i').test(row));
-    if(!hasAnchor) continue;
-    const nums = row.match(/\d{1,3}\.\d{1,4}/g) || [];
-    for(const n of nums){
-      const v = parseFloat(n);
-      if(isFinite(v) && v > min && v < max) results.push(v);
-    }
-  }
-  return results;
-}
-
-function median(arr){
-  if(!arr.length) return null;
-  const s = [...arr].sort((a,b)=>a-b);
-  const mid = Math.floor(s.length/2);
-  return s.length % 2 ? s[mid] : (s[mid-1] + s[mid]) / 2;
 }
 
 async function refreshSrRates(){
@@ -836,42 +757,32 @@ async function refreshSrRates(){
   $('srUsdSourceNote').style.display = 'none';
 
   try{
+    const data = await fetchRatesFromFunction();
     const sources = [
-      { short:'綠標', full:'Super Rich Thailand', cls:'is-green', url:'https://www.superrichthailand.com/#!/en/exchange' },
-      { short:'橘標', full:'Super Rich 1965',      cls:'is-orange', url:'https://www.superrich1965.com/en/exchange-rate' },
+      { key: 'superRichThailand', short:'綠標', full:'Super Rich Thailand', cls:'is-green' },
+      { key: 'superRich1965',      short:'橘標', full:'Super Rich 1965',      cls:'is-orange' },
     ];
 
-    // fetch both brands at the same time instead of one after another
-    const settled = await Promise.allSettled(
-      sources.map(s => fetchViaProxies('https://r.jina.ai/' + s.url, 16000))
-    );
-
-    const twdBySource = []; // { short, full, cls, value }
-    const usdBySource = [];
-
-    settled.forEach((result, i) => {
-      const src = sources[i];
-      if(result.status !== 'fulfilled') return;
-      const text = result.value;
-
-      const twdAnchors = ['TWD', 'Taiwan'];
-      const usdAnchors = ['USD', 'United States'];
-      const twdVals = [...extractFromRow(text, twdAnchors, 0.75, 1.35), ...extractNumbersNear(text, twdAnchors, 0.75, 1.35)];
-      const usdVals = [...extractFromRow(text, usdAnchors, 20, 50), ...extractNumbersNear(text, usdAnchors, 20, 50)];
-      const twdVal = median(twdVals);
-      const usdVal = median(usdVals);
-      if(twdVal !== null) twdBySource.push({ ...src, value: twdVal });
-      if(usdVal !== null) usdBySource.push({ ...src, value: usdVal });
+    const twdCandidates = [];
+    const usdCandidates = [];
+    sources.forEach(s=>{
+      const entry = data[s.key];
+      if(!entry) return;
+      if(entry.twd !== null && entry.twd !== undefined){
+        twdCandidates.push({ ...s, value: entry.twd });
+      }
+      if(entry.usd !== null && entry.usd !== undefined){
+        usdCandidates.push({ ...s, value: entry.usd });
+      }
     });
 
-    // pick the more favorable (higher) buying rate between the two brands
     function pickBest(arr){
       if(!arr.length) return null;
       return arr.reduce((a,b) => (b.value > a.value ? b : a));
     }
 
-    const twdBest = pickBest(twdBySource);
-    const usdBest = pickBest(usdBySource);
+    const twdBest = pickBest(twdCandidates);
+    const usdBest = pickBest(usdCandidates);
 
     function applyNote(noteEl, best, arr, digits){
       if(!best){ noteEl.style.display = 'none'; return; }
@@ -886,10 +797,9 @@ async function refreshSrRates(){
 
     if(twdBest !== null){ $('srTwdBuy').value = twdBest.value.toFixed(4); }
     if(usdBest !== null){ $('srUsdBuy').value = usdBest.value.toFixed(2); }
-    applyNote($('srTwdSourceNote'), twdBest, twdBySource, 3);
-    applyNote($('srUsdSourceNote'), usdBest, usdBySource, 2);
+    applyNote($('srTwdSourceNote'), twdBest, twdCandidates, 3);
+    applyNote($('srUsdSourceNote'), usdBest, usdCandidates, 2);
 
-    // report each field's outcome separately — a partial success should never look like a full success
     if(twdBest !== null && usdBest !== null){
       statusEl.textContent = '台幣、美金皆已更新';
       statusEl.className = 'status ok';
@@ -904,7 +814,6 @@ async function refreshSrRates(){
       statusEl.className = 'status err';
     }
   } catch(e){
-    // safety net: any unexpected error surfaces here instead of leaving the button stuck forever
     statusEl.textContent = '發生未預期錯誤：' + (e && e.message ? e.message : String(e));
     statusEl.className = 'status err';
   } finally{
